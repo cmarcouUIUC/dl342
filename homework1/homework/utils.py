@@ -25,7 +25,7 @@ class SuperTuxDataset(Dataset):
         with open(label_path) as csvfile:
           reader = csv.reader(csvfile)
           for row in reader:
-            image_files.append(path+row['file'])
+            image_files.append(dataset_path+row['file'])
             label_list.append(row['label'])
 
 
