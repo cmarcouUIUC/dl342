@@ -4,7 +4,8 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 LABEL_NAMES = ['background', 'kart', 'pickup', 'nitro', 'bomb', 'projectile']
-
+idx_to_class={i:j for i,j in enumerate(LABEL_NAMES)}
+class_to_idx = {value:key for key,value in idx_to_class.items()}
 import csv
 
 class SuperTuxDataset(Dataset):
@@ -15,18 +16,17 @@ class SuperTuxDataset(Dataset):
 
         WARNING: Do not perform data normalization here. 
         """
-        idx_to_class={i:j for i,j in enumerate(LABEL_NAMES)}
-        class_to_idx = {value:key for key,value in idx_to_class.items()}
         
-        image_files=[]
-        label_list=[]
+        self.dataset_path=dataset_path
+        self.image_files=[]
+        self.label_list=[]
         label_path=dataset_path+'/labels.csv'
         
         with open(label_path) as csvfile:
           reader=csv.DictReader(csvfile)
           for row in reader:
-            image_files.append(row['file'])
-            label_list.append(row['label'])
+            self.image_files.append(row['file'])
+            self.label_list.append(row['label'])
 
 
     def __len__(self):
@@ -40,8 +40,9 @@ class SuperTuxDataset(Dataset):
         """
         image_filepath=self.dataset_path +'/'+ self.image_files[idx]
         label = self.label_list[idx]
+        label = class_to_idx[label]
         with Image.open(image_filepath) as im:
-          img=im.trasnforms.ToTensor()
+          img=im.transforms.ToTensor()
         return img, label
 
 
