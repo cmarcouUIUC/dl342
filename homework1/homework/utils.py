@@ -18,8 +18,8 @@ class SuperTuxDataset(Dataset):
         idx_to_class={i:j for i,j in enumerate(LABEL_NAMES)}
         class_to_idx = {value:key for key,value in idx_to_class.items()}
         
-        self.image_files=[]
-        self.label_list=[]
+        image_files=[]
+        label_list=[]
         label_path=dataset_path+'/labels.csv'
         
         with open(label_path) as csvfile:
