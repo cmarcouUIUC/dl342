@@ -41,8 +41,9 @@ class SuperTuxDataset(Dataset):
         image_filepath=self.dataset_path +'/'+ self.image_files[idx]
         label = self.label_list[idx]
         label = class_to_idx[label]
+        tens_transf=transforms.ToTensor()
         with Image.open(image_filepath) as im:
-          img=im.transforms.ToTensor()
+          img=tens_transf(im)
         return img, label
 
 
