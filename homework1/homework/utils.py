@@ -25,12 +25,12 @@ class SuperTuxDataset(Dataset):
         with open(label_path) as csvfile:
           reader = csv.reader(csvfile)
           for row in reader:
-            image_files.append(dataset_path+row['file'])
+            image_files.append(row['file'])
             label_list.append(row['label'])
 
 
     def __len__(self):
-        return len(self.image_paths)
+        return len(self.image_files)
         
 
     def __getitem__(self, idx):
@@ -38,7 +38,7 @@ class SuperTuxDataset(Dataset):
         Your code here
         return a tuple: img, label
         """
-        image_filepath=self.dataset_path +'/'+ self.image_paths[idx]
+        image_filepath=self.dataset_path +'/'+ self.image_files[idx]
         label = self.label_list[idx]
         with Image.open(image_filepath) as im:
           img=im.trasnforms.ToTensor()
