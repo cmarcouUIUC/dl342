@@ -4,19 +4,7 @@ import torch.nn.functional as F
 
 class ClassificationLoss(torch.nn.Module):
     def forward(self, input, target):
-        """
-        Your code here
-
-        Compute mean(-log(softmax(input)_label))
-
-        @input:  torch.Tensor((B,C))
-        @target: torch.Tensor((B,), dtype=torch.int64)
-
-        @return:  torch.Tensor((,))
-
-        Hint: Don't be too fancy, this is a one-liner
-        """
-        raise NotImplementedError('ClassificationLoss.forward')
+        return F.cross_entropy(input,target)
 
 
 class LinearClassifier(torch.nn.Module):
