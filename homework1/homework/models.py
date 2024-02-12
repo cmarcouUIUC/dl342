@@ -22,20 +22,12 @@ class ClassificationLoss(torch.nn.Module):
 class LinearClassifier(torch.nn.Module):
     def __init__(self):
         super().__init__()
+        self.linear=torch.nn.Linear((64*64*3),6)
 
-        """
-        Your code here
-        """
-        raise NotImplementedError('LinearClassifier.__init__')
 
     def forward(self, x):
-        """
-        Your code here
 
-        @x: torch.Tensor((B,3,64,64))
-        @return: torch.Tensor((B,6))
-        """
-        raise NotImplementedError('LinearClassifier.forward')
+        return self.linear(x.view(x.size(0),-1))
 
 
 class MLPClassifier(torch.nn.Module):
