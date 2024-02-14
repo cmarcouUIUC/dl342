@@ -11,8 +11,8 @@ def train(args):
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    n_epochs=100
-    batch_size=64
+    n_epochs=1000
+    batch_size=128
 
     log_dir = tempfile.mkdtemp()
 
@@ -24,7 +24,7 @@ def train(args):
 
     for i, data in enumerate(train_data):
         train_data, train_labels = data
-        
+
     train_data=train_data.to(device)
     train_labels=train_labels.to(device)
 
@@ -60,7 +60,7 @@ def train(args):
 
           train_pred = model(train_data)
           valid_pred = model(valid_data)
-          train_accuracy  = accuracy(train_pred, train_labels)
+          train_accuracy = accuracy(train_pred, train_labels)
           valid_accuracy = accuracy(valid_pred, valid_labels)
           train_logger.add_scalar('train/accuracy', train_accuracy, global_step=global_step)
           valid_logger.add_scalar('valid/accuracy', valid_accuracy, global_step=global_step)
