@@ -21,12 +21,16 @@ def train(args):
 
     train_data=load_data('data/train')
     valid_data=load_data('data/valid')
+
     for i, data in enumerate(train_data):
         train_data, train_labels = data
+        
     train_data=train_data.to(device)
     train_labels=train_labels.to(device)
+
     for i, data in enumerate(valid_data):
         valid_data, valid_labels = data
+
     valid_data=valid_data.to(device)
     valid_labels=valid_labels.to(device)
 
@@ -39,27 +43,26 @@ def train(args):
     for epoch in range(n_epochs):
           permutation = torch.randperm(train_data.size(0))
 
-          train_accuracy = []
           for it in range(0,len(permutation)-batch_size+1, batch_size):
             batch_samples = permutation[it:it+batch_size]
             batch_data= train_data[batch_samples]
             batch_label= train_labels[batch_samples]
 
             o = model(batch_data)
-            loss_val = loss(0, batch_label.float())
-            
-            train_accuracy.extend(accuracy(o,batch_label))
-            train_accuracy=accuracy(o,batch_label)
+            loss_val = loss(o, batch_label)
+            train_logger.add_scalar('train/loss', float(loss_val), global_step=global_step)
 
             optimizer.zero_grad()
             loss_val.backward()
             optimizer.step()
 
             global_step += 1
-          valid_pred = model(valid_data)
 
+          train_pred = model(train_data)
+          valid_pred = model(valid_data)
+          train_accuracy  = accuracy(train_pred, train_labels)
           valid_accuracy = accuracy(valid_pred, valid_labels)
-          #train_logger.add_scalar('train/accuracy', np.mean(train_accuracy), global_step=global_step)
+          train_logger.add_scalar('train/accuracy', train_accuracy, global_step=global_step)
           valid_logger.add_scalar('valid/accuracy', valid_accuracy, global_step=global_step)
 
     save_model(model)
