@@ -43,15 +43,19 @@ def train(args):
     for epoch in range(n_epochs):
           permutation = torch.randperm(train_data.size(0))
 
+          train_accuracy = []
           for it in range(0,len(permutation)-batch_size+1, batch_size):
             batch_samples = permutation[it:it+batch_size]
             batch_data= train_data[batch_samples]
             batch_label= train_labels[batch_samples]
 
             o = model(batch_data)
-            loss_val = loss(o, batch_label)
-            train_logger.add_scalar('train/loss', float(loss_val), global_step=global_step)
-
+            loss_val = loss(o, batch_label.long())
+            
+            train_logger.add_scalar('train/loss', loss_val, global_step=global_step)
+    
+            train_accuracy.extend(accuracy(o, batch_label.long()).numpy())
+            
             optimizer.zero_grad()
             loss_val.backward()
             optimizer.step()
@@ -60,9 +64,8 @@ def train(args):
 
           train_pred = model(train_data)
           valid_pred = model(valid_data)
-          train_accuracy = accuracy(train_pred, train_labels)
           valid_accuracy = accuracy(valid_pred, valid_labels)
-          train_logger.add_scalar('train/accuracy', train_accuracy, global_step=global_step)
+          #train_logger.add_scalar('train/accuracy', train_accuracy, global_step=global_step)
           valid_logger.add_scalar('valid/accuracy', valid_accuracy, global_step=global_step)
 
     save_model(model)
