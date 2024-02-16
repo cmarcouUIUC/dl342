@@ -50,11 +50,11 @@ def train(args):
             batch_label= train_labels[batch_samples]
 
             o = model(batch_data)
-            loss_val = loss(o, batch_label.long())
+            loss_val = loss(o, batch_label)
             
             train_logger.add_scalar('train/loss', loss_val, global_step=global_step)
     
-            train_accuracy.extend(accuracy(o, batch_label.long()).numpy())
+            train_accuracy.extend(accuracy(o, batch_label))
             
             optimizer.zero_grad()
             loss_val.backward()
