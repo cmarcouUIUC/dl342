@@ -94,7 +94,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument('-mod', '--model', choices=['linear', 'mlp'], default='linear')
-    parser.add_argument('-b', '--batch_size', default=64)
+    parser.add_argument('-b', '--batch_size', default=128)
     parser.add_argument('-e', '--epochs', default=1)
     parser.add_argument('-lr', '--learning_rate', default=.01)
     parser.add_argument('-mom', '--momentum', default=.9)
