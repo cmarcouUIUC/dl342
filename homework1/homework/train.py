@@ -50,10 +50,9 @@ def train(args):
 
     #Start Training
     global_step=0
-    train_accuracy = []
-
+    epoch_avg_acc = []
+    epoch_avg_loss = []
     for epoch in range(n_epochs):
-      #permutation = torch.randperm(train_inputs.size(0))
       
       train_accuracy = []
       train_loss = []
@@ -64,14 +63,17 @@ def train(args):
         loss_val = loss(o, labels)
         train_loss.append(loss_val)
         train_accuracy.append(accuracy(o, labels))
-
         loss_val.backward()
         optimizer.step()
+
         
+      epoch_avg_acc.append(np.mean(train_accuracy))
+      #epoch_avg_loss.append(np.mean(train_loss))
+
     #Save Model
     save_model(model)
-    #print(valid_accuracy)
-    print(train_accuracy)
+    print(epoch_avg_acc)
+    #print(len(train_accuracy))
 
 
 if __name__ == '__main__':
