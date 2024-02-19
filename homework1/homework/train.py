@@ -1,4 +1,4 @@
-from .models import ClassificationLoss, model_factory, save_model
+from .models import ClassificationLoss, model_factory, save_model, load_model
 from .utils import accuracy, load_data
 import torch
 import torch.utils.tensorboard as tb
@@ -37,7 +37,10 @@ def train(args):
     valid_labels=valid_labels.to(device)
 
     #create the model
-    model = model_factory[args.model]().to(device)
+    if args.load==True:
+      model = load_model(model_factory[args.model])().to(device)
+    else:
+      model = model_factory[args.model]().to(device)
 
     #Create the optimizer
     optimizer = torch.optim.SGD(model.parameters(), lr=float(args.learning_rate), momentum=args.momentum, weight_decay=1e-4)
@@ -95,7 +98,7 @@ if __name__ == '__main__':
     parser.add_argument('-e', '--epochs', default=1)
     parser.add_argument('-lr', '--learning_rate', default=.01)
     parser.add_argument('-mom', '--momentum', default=.9)
-    #parser.add_argment('-l','--load',default=False)
+    parser.add_argument('-lo','--load',default=False)
 
     
 

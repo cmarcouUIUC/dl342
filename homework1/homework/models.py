@@ -21,14 +21,14 @@ class LinearClassifier(torch.nn.Module):
 class MLPClassifier(torch.nn.Module):
     def __init__(self):
         super().__init__()
-        layers=[]
-        layers.append(linear1=torch.nn.Linear((64*64*3),6))
-        layers.append(activation=torch.nn.ReLU())
-        layers.append(torch.nn.Linear(6, 6))
-        self.network = torch.nn.Sequential(*layers)
+        self.mlp_model= torch.nn.Sequential(
+        torch.nn.Linear((64*64*3),6),
+        torch.nn.ReLU(),
+        torch.nn.Linear(6, 6)
+        )
 
     def forward(self, x):
-       return self.linear(x.view(x.size(0),-1))
+       return self.mlp_model(x.view(x.size(0),-1))
 
 
 model_factory = {
