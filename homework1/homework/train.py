@@ -25,15 +25,15 @@ def train(args):
 
     #split into data and labels
     for i, data in enumerate(train_data):
-        train_data, train_labels = data
+        train_inputs, train_labels = data
 
     for i, data in enumerate(valid_data):
-        valid_data, valid_labels = data
+        valid_inputs, valid_labels = data
 
     #Put data on device
-    train_data=train_data.to(device)
+    train_inputs=train_inputs.to(device)
     train_labels=train_labels.to(device)
-    valid_data=valid_data.to(device)
+    valid_inputs=valid_inputs.to(device)
     valid_labels=valid_labels.to(device)
 
     #create the model
@@ -53,12 +53,12 @@ def train(args):
     train_accuracy = []
 
     for epoch in range(n_epochs):
-      permutation = torch.randperm(train_data.size(0))
+      permutation = torch.randperm(train_inputs.size(0))
 
       #Iterate
       for it in range(0,len(permutation)-batch_size+1, batch_size):
         batch_samples = permutation[it:it+batch_size]
-        batch_data= train_data[batch_samples]
+        batch_data= train_inputs[batch_samples]
         batch_label= train_labels[batch_samples]
 
         #Compute Loss
@@ -76,7 +76,7 @@ def train(args):
         global_step += 1
 
       #Evaluate Model
-      valid_pred = model(valid_data)
+      valid_pred = model(valid_inputs)
       valid_accuracy = accuracy(valid_pred, valid_labels.int())
       
       #train_logger.add_scalar('train/accuracy', np.mean(train_accuracy), global_step=global_step)
