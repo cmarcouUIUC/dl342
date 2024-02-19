@@ -14,27 +14,9 @@ def train(args):
     n_epochs=int(args.epochs)
     batch_size=int(args.batch_size)
 
-    log_dir = tempfile.mkdtemp()
-
-    train_logger = tb.SummaryWriter(log_dir+'/'+args.model+'/train', flush_secs=1)
-    valid_logger = tb.SummaryWriter(log_dir+'/'+args.model+'/valid', flush_secs=1)
-
     #load data
     train_data=load_data('data/train')
     valid_data=load_data('data/valid')
-
-    #split into data and labels
-    #for i, data in enumerate(train_data):
-    #    train_inputs, train_labels = data
-
-    #for i, data in enumerate(valid_data):
-    #    valid_inputs, valid_labels = data
-
-    #Put data on device
-    #train_inputs=train_inputs.to(device)
-    #train_labels=train_labels.to(device)
-    #valid_inputs=valid_inputs.to(device)
-    #valid_labels=valid_labels.to(device)
 
     #create the model
     if args.load==True:
@@ -52,28 +34,44 @@ def train(args):
     global_step=0
     epoch_avg_acc = []
     epoch_avg_loss = []
+    epoch_avg_val_acc = []
+    epoch_avg_val_loss = []
     for epoch in range(n_epochs):
       
       train_accuracy = []
       train_loss = []
       for i, data in enumerate(train_data):
         inputs, labels = data
+        inputs, labels = inputs.to(device), labels.to(device)
         optimizer.zero_grad()
         o = model(inputs)
         loss_val = loss(o, labels)
-        train_loss.append(loss_val)
+        train_loss.append(loss_val.detach().numpy())
         train_accuracy.append(accuracy(o, labels))
         loss_val.backward()
         optimizer.step()
 
-        
-      epoch_avg_acc.append(np.mean(train_accuracy))
-      #epoch_avg_loss.append(np.mean(train_loss))
+      valid_accuracy = []
+      valid_loss = []
+      for i, data in enumerate(valid_data):
+        inputs, labels = data
+        inputs, labels = inputs.to(device), labels.to(device)
+        valid_o = model(inputs)
+        loss_val = loss(valid_o, labels)
+        valid_loss.append(loss_val.detach().numpy())
+        valid_accuracy.append(accuracy(valid_o, labels))
 
-    #Save Model
-    save_model(model)
-    print(epoch_avg_acc)
-    #print(len(train_accuracy))
+      epoch_avg_acc.append(np.mean(train_accuracy))
+      epoch_avg_val_acc.append(np.mean(valid_accuracy))
+      epoch_avg_loss.append(np.mean(train_loss))
+
+      
+      save_model(model)
+    print('Train Final Loss: ', epoch_avg_loss[-1],'  Valid Final Loss',epoch_avg_val_loss[-1] )
+    print('Train Final Acc: ', epoch_avg_acc[-1],'  Valid Final Acc',epoch_avg_val_acc[-1] )
+
+
+
 
 
 if __name__ == '__main__':
