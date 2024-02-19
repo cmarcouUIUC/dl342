@@ -11,8 +11,8 @@ def train(args):
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
-    n_epochs=args.epochs
-    batch_size=args.batch_size
+    n_epochs=int(args.epochs)
+    batch_size=int(args.batch_size)
 
     log_dir = tempfile.mkdtemp()
 
