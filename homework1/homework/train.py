@@ -77,7 +77,7 @@ def train(args):
           valid_pred = model(valid_data)
           valid_accuracy = accuracy(valid_pred, valid_labels.int())
           
-          train_logger.add_scalar('train/accuracy', train_accuracy, global_step=global_step)
+          train_logger.add_scalar('train/accuracy', np.mean(train_accuracy), global_step=global_step)
           valid_logger.add_scalar('valid/accuracy', valid_accuracy, global_step=global_step)
     
     #Save Model
@@ -91,11 +91,11 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
 
-    parser.add_argument('-m', '--model', choices=['linear', 'mlp'], default='linear')
+    parser.add_argument('-mod', '--model', choices=['linear', 'mlp'], default='linear')
     parser.add_argument('-b', '--batch_size', default=64)
     parser.add_argument('-e', '--epochs', default=1)
     parser.add_argument('-lr', '--learning_rate', default=.01)
-    parser.add_argument('-mo', '--momentum', default=.9)
+    parser.add_argument('-mom', '--momentum', default=.9)
     #parser.add_argment('-l','--load',default=False)
 
     
