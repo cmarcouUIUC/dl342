@@ -40,19 +40,20 @@ def train(args):
     model = model_factory[args.model]().to(device)
 
     #Create the optimizer
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.mo, weight_decay=1e-4)
+    optimizer = torch.optim.SGD(model.parameters(), lr=float(args.learning_rate), momentum=args.momentum, weight_decay=1e-4)
 
     #Create the loss
     loss=ClassificationLoss()
 
     #Start Training
     global_step=0
+    train_accuracy = []
+
     for epoch in range(n_epochs):
           #Shuffle Data
           permutation = torch.randperm(train_data.size(0))
 
           #Iterate
-          train_accuracy = []
           for it in range(0,len(permutation)-batch_size+1, batch_size):
             batch_samples = permutation[it:it+batch_size]
             batch_data= train_data[batch_samples]
@@ -63,8 +64,7 @@ def train(args):
             loss_val = loss(o, batch_label.int())
             
             train_logger.add_scalar('train/loss', loss_val, global_step=global_step)
-    
-            train_accuracy.extend(accuracy(o, batch_label.int()))
+            train_accuracy.append(accuracy(o, batch_label.int()))
             
             optimizer.zero_grad()
             loss_val.backward()
@@ -72,12 +72,12 @@ def train(args):
 
             #Increase global step
             global_step += 1
-          
+
           #Evaluate Model
           valid_pred = model(valid_data)
           valid_accuracy = accuracy(valid_pred, valid_labels.int())
           
-          train_logger.add_scalar('train/accuracy', np.mean(train_accuracy), global_step=global_step)
+          #train_logger.add_scalar('train/accuracy', np.mean(train_accuracy), global_step=global_step)
           valid_logger.add_scalar('valid/accuracy', valid_accuracy, global_step=global_step)
     
     #Save Model
