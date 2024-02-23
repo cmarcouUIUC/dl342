@@ -46,8 +46,8 @@ def train(args):
         optimizer.zero_grad()
         o = model(inputs)
         loss_val = loss(o, labels)
-        train_loss.append(loss_val.detach().numpy())
-        train_accuracy.append(accuracy(o, labels))
+        train_loss.append(loss_val.cpu().detach().numpy())
+        train_accuracy.append(accuracy(o, labels).cpu().detach().numpy())
         loss_val.backward()
         optimizer.step()
 
@@ -58,8 +58,8 @@ def train(args):
         inputs, labels = inputs.to(device), labels.to(device)
         valid_o = model(inputs)
         loss_val = loss(valid_o, labels)
-        valid_loss.append(loss_val.detach().numpy())
-        valid_accuracy.append(accuracy(valid_o, labels))
+        valid_loss.append(loss_val.cpu().detach().numpy())
+        valid_accuracy.append(accuracy(valid_o, labels).cpu().detach().numpy())
 
       epoch_avg_acc.append(np.mean(train_accuracy))
       epoch_avg_val_acc.append(np.mean(valid_accuracy))
@@ -67,8 +67,8 @@ def train(args):
 
       
       save_model(model)
-    print('Train Final Loss: ', epoch_avg_loss[-1],'  Valid Final Loss',epoch_avg_val_loss[-1] )
-    print('Train Final Acc: ', epoch_avg_acc[-1],'  Valid Final Acc',epoch_avg_val_acc[-1] )
+    print('Train Final Loss: ', epoch_avg_loss,'  Valid Final Loss',epoch_avg_val_loss)
+    print('Train Final Acc: ', epoch_avg_acc,'  Valid Final Acc',epoch_avg_val_acc) 
 
 
 
