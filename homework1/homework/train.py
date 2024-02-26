@@ -34,6 +34,7 @@ def train(args):
     #Start Training
     global_step=0
     best_loss = 0
+    epochs_no_improve = 0
     for epoch in range(n_epochs):
       
       train_accuracy = []
@@ -63,6 +64,8 @@ def train(args):
       logger.add_scalar('model/train/loss', np.mean(train_loss), global_step)
       logger.add_scalar('model/valid/acc', np.mean(valid_accuracy), global_step)
       logger.add_scalar('model/valid/loss', np.mean(valid_loss), global_step)
+      
+      global_step+=1
 
       if epoch <=20:
         if np.mean(valid_loss) <= best_loss:
@@ -70,7 +73,7 @@ def train(args):
           save_model(model)
 
         else:
-          if valid_loss >= best_loss:
+          if np.mean(valid_loss) >= best_loss:
               epochs_no_improve+=1
           else:
               epochs_no_improve=0
@@ -81,9 +84,6 @@ def train(args):
           break
       
       prior_val_loss=np.mean(valid_loss)
-
-    print('Train Final Loss: ', epoch_avg_loss,'  Valid Final Loss',epoch_avg_val_loss)
-    print('Train Final Acc: ', epoch_avg_acc,'  Valid Final Acc',epoch_avg_val_acc) 
 
 
 
