@@ -67,7 +67,7 @@ def train(args):
       
       global_step+=1
 
-      if epoch <=10:
+      if epoch <=args.early_stop:
         if epoch ==1:
           save_model(model)
         elif np.mean(valid_loss) <= best_loss:
@@ -101,6 +101,8 @@ if __name__ == '__main__':
     parser.add_argument('-lr', '--learning_rate', default=.01)
     parser.add_argument('-mom', '--momentum', default=.9)
     parser.add_argument('-lo','--load',default=False)
+    parser.add_argument('--early_stop',default=10)
+
 
     
 
