@@ -5,6 +5,7 @@ import torch.utils.tensorboard as tb
 import tempfile
 import numpy as np
 
+logger = tb.SummaryWriter('model_logs')
 
 
 def train(args):
@@ -32,10 +33,7 @@ def train(args):
 
     #Start Training
     global_step=0
-    epoch_avg_acc = []
-    epoch_avg_loss = []
-    epoch_avg_val_acc = []
-    epoch_avg_val_loss = []
+    best_loss = 0
     for epoch in range(n_epochs):
       
       train_accuracy = []
@@ -60,13 +58,30 @@ def train(args):
         loss_val = loss(valid_o, labels)
         valid_loss.append(loss_val.cpu().detach().numpy())
         valid_accuracy.append(accuracy(valid_o, labels).cpu().detach().numpy())
-
-      epoch_avg_acc.append(np.mean(train_accuracy))
-      epoch_avg_val_acc.append(np.mean(valid_accuracy))
-      epoch_avg_loss.append(np.mean(train_loss))
-
       
-      save_model(model)
+      logger.add_scalar('model/train/acc', np.mean(train_accuracy), global_step)
+      logger.add_scalar('model/train/loss', np.mean(train_loss), global_step)
+      logger.add_scalar('model/valid/acc', np.mean(valid_accuracy), global_step)
+      logger.add_scalar('model/valid/loss', np.mean(valid_loss), global_step)
+
+      if epoch <=20:
+        if np.mean(valid_loss) <= best_loss:
+          best_loss=np.mean(valid_loss)
+          save_model(model)
+
+        else:
+          if valid_loss >= best_loss:
+              epochs_no_improve+=1
+          else:
+              epochs_no_improve=0
+              best_loss=np.mean(valid_loss)
+              save_model(model)
+
+      if epochs_no_improve==10:
+          break
+      
+      prior_val_loss=np.mean(valid_loss)
+
     print('Train Final Loss: ', epoch_avg_loss,'  Valid Final Loss',epoch_avg_val_loss)
     print('Train Final Acc: ', epoch_avg_acc,'  Valid Final Acc',epoch_avg_val_acc) 
 
