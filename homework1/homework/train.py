@@ -33,7 +33,7 @@ def train(args):
 
     #Start Training
     global_step=0
-    best_loss = 0
+    best_loss = 10
     epochs_no_improve = 0
     for epoch in range(n_epochs):
       
