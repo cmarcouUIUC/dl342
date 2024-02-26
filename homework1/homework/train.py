@@ -67,7 +67,7 @@ def train(args):
       
       global_step+=1
 
-      if epoch <=args.early_stop:
+      if epoch <=int(args.early_stop):
         if epoch ==1:
           save_model(model)
         elif np.mean(valid_loss) <= best_loss:
