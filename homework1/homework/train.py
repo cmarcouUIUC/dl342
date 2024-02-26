@@ -68,17 +68,18 @@ def train(args):
       global_step+=1
 
       if epoch <=20:
-        if np.mean(valid_loss) <= best_loss:
+        if epoch ==1:
+          save_model(model)
+        elif np.mean(valid_loss) <= best_loss:
           best_loss=np.mean(valid_loss)
           save_model(model)
-
+      else:
+        if np.mean(valid_loss) >= best_loss:
+            epochs_no_improve+=1
         else:
-          if np.mean(valid_loss) >= best_loss:
-              epochs_no_improve+=1
-          else:
-              epochs_no_improve=0
-              best_loss=np.mean(valid_loss)
-              save_model(model)
+            epochs_no_improve=0
+            best_loss=np.mean(valid_loss)
+            save_model(model)
 
       if epochs_no_improve==10:
           break
