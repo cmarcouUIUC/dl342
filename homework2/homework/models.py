@@ -1,5 +1,11 @@
 import torch
+import torch.nn.functional as F
 
+
+class ClassificationLoss(torch.nn.Module):
+    def forward(self, input, target):
+        return F.cross_entropy(input,target)
+        
 
 class CNNClassifier(torch.nn.Module):
     def __init__(self, layers=[32,64], n_input_channels=3, kernel_size=3):
