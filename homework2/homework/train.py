@@ -1,4 +1,4 @@
-from .models import CNNClassifier, save_model
+from .models import CNNClassifier, save_model, ClassificationLoss
 from .utils import accuracy, load_data
 import torch
 import torch.utils.tensorboard as tb
@@ -19,7 +19,7 @@ def train(args):
     valid_data=load_data('data/valid')
 
     #loss
-    loss = torch.nn.CrossEntropyLoss()
+    loss = ClassificationLoss()
 
     #initialize optimizer
     optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
