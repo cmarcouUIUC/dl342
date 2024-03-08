@@ -35,6 +35,7 @@ def train(args):
         optimizer.zero_grad()
         o = model(inputs)
         loss_val = loss(o, labels)
+        train_accuracy=accuracy(o, labels).cpu().detach().numpy()
         loss_val.backward()
         optimizer.step()
 
