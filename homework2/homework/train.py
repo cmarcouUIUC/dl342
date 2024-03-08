@@ -6,13 +6,14 @@ import torch.utils.tensorboard as tb
 
 def train(args):
     from os import path
-    model = CNNClassifier()
-    train_logger, valid_logger = None, None
+
     if args.log_dir is not None:
         train_logger = tb.SummaryWriter(path.join(args.log_dir, 'train'))
         valid_logger = tb.SummaryWriter(path.join(args.log_dir, 'valid'))
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    model = CNNClassifier().to(device)
+
 
     #load data
     train_data=load_data('data/train')
