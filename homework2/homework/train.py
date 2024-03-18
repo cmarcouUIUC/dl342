@@ -29,6 +29,7 @@ def train(args):
 
     for epoch in range(args.n_epochs):
 
+      train_acc = []
       for i,data in enumerate(train_data):
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
@@ -39,8 +40,27 @@ def train(args):
         #print(o.shape)
         loss_val = loss(o, labels)
         train_accuracy=accuracy(o, labels).cpu().detach().numpy()
+        train_acc.append(train_accuracy)
+        train_logger.add_scalar('loss', loss_val, global_step)
         loss_val.backward()
         optimizer.step()
+        global_step+=1
+      train_acc = torch.mean(torch.cat(train_acc))
+      train_logger.add_scalar('accuracy', train_acc, global_step)
+
+      valid_acc = []
+      for i,data in enumerate(valid_data):
+        inputs, labels = data
+        inputs, labels = inputs.to(device), labels.to(device)
+        valid_o = model(inputs)
+        valid_accuracy=accuracy(valid_o, labels).cpu().detach().numpy()
+        valid_acc.append(valid_accuracy)
+      valid_acc = torch.mean(torch.cat(valid_acc))
+      valid_logger.add_scalar('accuracy', valid_acc, global_step)
+
+      
+
+
 
 
     save_model(model)
