@@ -2,6 +2,7 @@ from .models import CNNClassifier, save_model, ClassificationLoss
 from .utils import accuracy, load_data
 import torch
 import torch.utils.tensorboard as tb
+import numpy as np
 
 
 def train(args):
@@ -39,24 +40,21 @@ def train(args):
         #print(labels.shape)
         #print(o.shape)
         loss_val = loss(o, labels)
-        train_accuracy=accuracy(o, labels).cpu().detach().numpy()
-        train_acc.append(train_accuracy)
+        train_acc.append(accuracy(o, labels).cpu().detach().numpy())
         train_logger.add_scalar('loss', loss_val, global_step)
         loss_val.backward()
         optimizer.step()
         global_step+=1
-      train_acc = torch.mean(torch.cat(train_acc))
-      train_logger.add_scalar('accuracy', train_acc, global_step)
+      train_logger.add_scalar('accuracy', np.mean(train_acc), global_step)
 
       valid_acc = []
       for i,data in enumerate(valid_data):
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
         valid_o = model(inputs)
-        valid_accuracy=accuracy(valid_o, labels).cpu().detach().numpy()
-        valid_acc.append(valid_accuracy)
-      valid_acc = torch.mean(torch.cat(valid_acc))
-      valid_logger.add_scalar('accuracy', valid_acc, global_step)
+        valid_acc.append(accuracy(valid_o, labels).cpu().detach().numpy())
+
+      valid_logger.add_scalar('accuracy', np.mean(valid_acc), global_step)
 
       
 
@@ -71,9 +69,9 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--log_dir')
-    parser.add_argument('--learning_rate', default=0.01)
-    parser.add_argument('--momentum', default=0.9)
-    parser.add_argument('--n_epochs', default=1)
+    parser.add_argument('--learning_rate', type=float, default=0.01)
+    parser.add_argument('--momentum', type=float, default=0.9)
+    parser.add_argument('--n_epochs', type=int, default=1)
 
     args = parser.parse_args()
     train(args)
