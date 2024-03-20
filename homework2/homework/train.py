@@ -29,7 +29,8 @@ def train(args):
     global_step=0
 
     for epoch in range(args.n_epochs):
-
+      
+      #train loop
       train_acc = []
       for i,data in enumerate(train_data):
         inputs, labels = data
@@ -37,23 +38,28 @@ def train(args):
 
         optimizer.zero_grad()
         o = model(inputs)
-        #print(labels.shape)
-        #print(o.shape)
         loss_val = loss(o, labels)
+
+        #track accuracy and log loss
         train_acc.append(accuracy(o, labels).cpu().detach().numpy())
         train_logger.add_scalar('loss', loss_val, global_step)
+
         loss_val.backward()
         optimizer.step()
         global_step+=1
+      
+      #log accuracy
       train_logger.add_scalar('accuracy', np.mean(train_acc), global_step)
 
+      #check on valid accuracy
       valid_acc = []
       for i,data in enumerate(valid_data):
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
         valid_o = model(inputs)
         valid_acc.append(accuracy(valid_o, labels).cpu().detach().numpy())
-
+        
+      #log validation accuracy
       valid_logger.add_scalar('accuracy', np.mean(valid_acc), global_step)
 
       
