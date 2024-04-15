@@ -33,6 +33,7 @@ def train(args):
       #train loop
       train_acc = []
       for i,data in enumerate(train_data):
+        model.train()
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
 
@@ -54,6 +55,7 @@ def train(args):
       #check on valid accuracy
       valid_acc = []
       for i,data in enumerate(valid_data):
+        model.eval()
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
         valid_o = model(inputs)
