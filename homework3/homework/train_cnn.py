@@ -1,5 +1,5 @@
-from .models import CNNClassifier, save_model
-from .utils import ConfusionMatrix, load_data, LABEL_NAMES
+from .models import CNNClassifier, save_model, ClassificationLoss
+from .utils import ConfusionMatrix, load_data, LABEL_NAMES, accuracy
 import torch
 import torchvision
 import torch.utils.tensorboard as tb
@@ -31,7 +31,6 @@ def train(args):
     for epoch in range(args.n_epochs):
       
       #train loop
-      train_acc = []
       for i,data in enumerate(train_data):
         model.train()
         inputs, labels = data
@@ -42,7 +41,8 @@ def train(args):
         loss_val = loss(o, labels)
 
         #track accuracy and log loss
-        train_acc.append(accuracy(o, labels).cpu().detach().numpy())
+        train_logger.add_scalar('accuracy', accuracy(o, labels),global_step)
+        #train_acc.append(accuracy(o, labels).cpu().detach().numpy())
         train_logger.add_scalar('loss', loss_val, global_step)
 
         loss_val.backward()
@@ -50,7 +50,6 @@ def train(args):
         global_step+=1
       
       #log accuracy
-      train_logger.add_scalar('accuracy', np.mean(train_acc), global_step)
 
       #check on valid accuracy
       valid_acc = []
