@@ -53,17 +53,38 @@ def train(args):
 
       #check on valid accuracy
       valid_acc = []
+      valid_loss = []
       for i,data in enumerate(valid_data):
         model.eval()
         inputs, labels = data
         inputs, labels = inputs.to(device), labels.to(device)
         valid_o = model(inputs)
+        valid_l = loss(o, labels)
+
         valid_acc.append(accuracy(valid_o, labels).cpu().detach().numpy())
-        
+        valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy
       valid_logger.add_scalar('accuracy', np.mean(valid_acc), global_step)
+      valid_logger.add_scalar('accuracy', np.mean(val_loss), global_step)
 
+      if epoch <= args.early_stop:
+        if epoch == 1:
+          save_model(model)
+        elif np.mean(valid_loss) <= best_loss:
+          best_loss=np.mean(valid_loss)
+          save_model(model)
+      else:
+        if np.mean(valid_loss) >= best_loss:
+            epochs_no_improve+=1
+        else:
+            epochs_no_improve=0
+            best_loss=np.mean(valid_loss)
+            save_model(model)
+
+      if epochs_no_improve==10:
+          break
       
+      prior_val_loss=np.mean(valid_loss)
 
 
 
@@ -79,6 +100,8 @@ if __name__ == '__main__':
     parser.add_argument('--learning_rate', type=float, default=0.01)
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--n_epochs', type=int, default=1)
+    parser.add_argument('--early_stop', type=int, default=10)
+
 
     args = parser.parse_args()
     train(args)
