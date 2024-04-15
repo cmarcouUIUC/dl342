@@ -16,25 +16,38 @@ class SuperTuxDataset(Dataset):
     def __init__(self, dataset_path):
         """
         Your code here
-        Hint: Use your solution (or the master solution) to HW1 / HW2
-        Hint: If you're loading (and storing) PIL images here, make sure to call image.load(),
-              to avoid an OS error for too many open files.
-        Hint: Do not store torch.Tensor's as data here, but use PIL images, torchvision.transforms expects PIL images
-              for most transformations.
+        Hint: Use the python csv library to parse labels.csv
+
+        WARNING: Do not perform data normalization here. 
         """
-        raise NotImplementedError('SuperTuxDataset.__init__')
+        
+        self.dataset_path=dataset_path
+        self.image_files=[]
+        self.label_list=[]
+        label_path=dataset_path+'/labels.csv'
+        
+        with open(label_path) as csvfile:
+          reader=csv.DictReader(csvfile)
+          for row in reader:
+            self.image_files.append(row['file'])
+            self.label_list.append(row['label'])
+
 
     def __len__(self):
-        """
-        Your code here
-        """
-        raise NotImplementedError('SuperTuxDataset.__len__')
+        return len(self.image_files)
+        
 
     def __getitem__(self, idx):
         """
         Your code here
+        return a tuple: img, label
         """
-        raise NotImplementedError('SuperTuxDataset.__getitem__')
+        image_filepath=self.dataset_path +'/'+ self.image_files[idx]
+        label = self.label_list[idx]
+        label = class_to_idx[label]
+        tens_transf=transforms.ToTensor()
+        with Image.open(image_filepath) as im:
+          img=tens_transf(im)
         return img, label
 
 
@@ -58,6 +71,9 @@ class DenseSuperTuxDataset(Dataset):
             im, lbl = self.transform(im, lbl)
         return im, lbl
 
+def accuracy(outputs, labels):
+    outputs_idx = outputs.max(1)[1].type_as(labels)
+    return outputs_idx.eq(labels).float().mean()
 
 def load_data(dataset_path, num_workers=0, batch_size=128, **kwargs):
     dataset = SuperTuxDataset(dataset_path, **kwargs)
