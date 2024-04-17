@@ -17,8 +17,8 @@ def train(args):
 
 
     #load data
-    train_data=load_data('data/train', resize=arg.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
-    valid_data=load_data('data/valid', resize=arg.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
+    train_data=load_data('data/train', resize=args.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
+    valid_data=load_data('data/valid', resize=args.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
 
     #loss
     loss = ClassificationLoss()
