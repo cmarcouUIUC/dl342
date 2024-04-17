@@ -23,6 +23,7 @@ class CNNClassifier(torch.nn.Module):
         torch.nn.Conv2d(n_output, n_output, kernel_size=3, padding=1),
         #non-lin activation
         torch.nn.ReLU()
+        torch.nn.BatchNorm2d(n_output) if norm == True else torch.nn.Identity(),
       )
     
     def forward(self, x):
@@ -34,6 +35,7 @@ class CNNClassifier(torch.nn.Module):
     #Use maxpooling here to reduce dimensions/down-sample
     L = [torch.nn.Conv2d(n_input_channels, 32, kernel_size=7, padding=3, stride=2),
         torch.nn.ReLU(),
+        torch.nn.BatchNorm2d(32) if norm == True else torch.nn.Identity(),
         torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)]
     c = 32
     #Add block for specified channels
