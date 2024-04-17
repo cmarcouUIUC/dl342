@@ -27,6 +27,8 @@ def train(args):
     optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
 
     global_step=0
+    best_loss = 1000000
+    epochs_no_improve=0
 
     for epoch in range(args.n_epochs):
       
@@ -84,12 +86,12 @@ def train(args):
       if epochs_no_improve==10:
           break
       
-      prior_val_loss=np.mean(valid_loss)
+      #prior_val_loss=np.mean(valid_loss)
 
 
 
 
-    save_model(model)
+    #save_model(model)
 
 
 if __name__ == '__main__':
