@@ -3,6 +3,7 @@ from PIL import Image
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 from torchvision.transforms import functional as F
+import csv
 
 from . import dense_transforms
 
@@ -10,10 +11,11 @@ LABEL_NAMES = ['background', 'kart', 'pickup', 'nitro', 'bomb', 'projectile']
 DENSE_LABEL_NAMES = ['background', 'kart', 'track', 'bomb/projectile', 'pickup/nitro']
 # Distribution of classes on dense training set (background and track dominate (96%)
 DENSE_CLASS_DISTRIBUTION = [0.52683655, 0.02929112, 0.4352989, 0.0044619, 0.00411153]
-
+idx_to_class={i:j for i,j in enumerate(LABEL_NAMES)}
+class_to_idx = {value:key for key,value in idx_to_class.items()}
 
 class SuperTuxDataset(Dataset):
-    def __init__(self, dataset_path):
+    def __init__(self, dataset_path, transform=transforms.ToTensor()):
         """
         Your code here
         Hint: Use the python csv library to parse labels.csv
@@ -97,7 +99,8 @@ def get_transform(resize=None, random_crop=None, random_horizontal_flip=False, n
     return torchvision.transforms.Compose(transform)
 
 def load_data(dataset_path, num_workers=0, batch_size=128, **kwargs):
-    dataset = SuperTuxDataset(dataset_path, **kwargs)
+    transform = get_transform(**kwargs)
+    dataset = SuperTuxDataset(dataset_path, get_transform(**kwargs))
     return DataLoader(dataset, num_workers=num_workers, batch_size=batch_size, shuffle=True, drop_last=True)
 
 
