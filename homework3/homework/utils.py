@@ -75,6 +75,27 @@ def accuracy(outputs, labels):
     outputs_idx = outputs.max(1)[1].type_as(labels)
     return outputs_idx.eq(labels).float().mean()
 
+def get_transform(resize=None, random_crop=None, random_horizontal_flip=False, normalize=False, is_resnet=False):
+    import torchvision
+    if is_resnet:
+      return torchvision.transforms.Compose([
+        torchvision.transforms.Scale(256),
+        torchvision.transforms.CenterCrop(224),
+        torchvision.transforms.ToTensor(),
+        torchvision.transforms.Normalize(mean=[.485,.456,.406], std=[.229,.224,.225])
+      ])
+    transform=[]
+    if resize is not None:
+      transform.append(torchvision.transform.Resize(resize))
+    if random_crop is not None:
+      transform.append(torchvision.transforms.RandomResizedCrop(random_crop))
+    if random_horizontal_flip:
+      transform.append(torchvision.transforms.RandomHorizontalFlip())
+    transform.append(torchvision.transforms.ToTensor())
+    if normalize:
+      transform.append(torchvision.transforms.Normalize(mean=[.5,.5,.5],std=[.5,.5,.5]))
+    return torchvision.transforms.Compose(transform)
+
 def load_data(dataset_path, num_workers=0, batch_size=128, **kwargs):
     dataset = SuperTuxDataset(dataset_path, **kwargs)
     return DataLoader(dataset, num_workers=num_workers, batch_size=batch_size, shuffle=True, drop_last=True)
