@@ -7,12 +7,13 @@ class ClassificationLoss(torch.nn.Module):
         return F.cross_entropy(input,target)
 
 
-class CNNClassifier(torch.nn.Module, norm=False, residual=False):
+class CNNClassifier(torch.nn.Module):
 
   #Set up block
   class Block(torch.nn.Module):
-    def __init__(self, n_input, n_output, norm=True, stride=1,):
+    def __init__(self, n_input, n_output, norm, residual, stride=1,):
       super().__init__()
+      self.residual=residual
       self.net = torch.nn.Sequential(
         #Strided Convolution
         torch.nn.Conv2d(n_input, n_output, kernel_size=3, padding=1, stride=stride),
@@ -22,15 +23,15 @@ class CNNClassifier(torch.nn.Module, norm=False, residual=False):
         #non-strided convolution
         torch.nn.Conv2d(n_output, n_output, kernel_size=3, padding=1),
         #non-lin activation
-        torch.nn.ReLU()
-        torch.nn.BatchNorm2d(n_output) if norm == True else torch.nn.Identity(),
+        torch.nn.ReLU(),
+        torch.nn.BatchNorm2d(n_output) if norm == True else torch.nn.Identity()
       )
     
     def forward(self, x):
       identity=x
-      return self.net(x) + identity if residual == True else return self.net(x)
+      return self.net(x) + identity if self.residual == True else self.net(x)
       
-  def __init__(self, layers=[32,64,128], norm=True, n_input_channels=3):
+  def __init__(self, norm, residual, layers=[32,64,128],  n_input_channels=3):
     super().__init__()
     #Initial convolution, larger kernel with padding and stride
     #Use maxpooling here to reduce dimensions/down-sample
@@ -41,7 +42,7 @@ class CNNClassifier(torch.nn.Module, norm=False, residual=False):
     c = 32
     #Add block for specified channels
     for l in layers:
-        L.append(self.Block(c, l, norm=True, stride=2))
+        L.append(self.Block(c, l, norm, residual, stride=2))
         c = l
     #final network setup
     self.network = torch.nn.Sequential(*L)
