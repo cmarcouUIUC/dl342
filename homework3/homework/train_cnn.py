@@ -17,8 +17,8 @@ def train(args):
 
 
     #load data
-    train_data=load_data('data/train')
-    valid_data=load_data('data/valid')
+    train_data=load_data('data/train', resize=arg.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, normalize_input=args.normalize_input,  is_resnet=args.is_resnet)
+    valid_data=load_data('data/valid', resize=arg.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, normalize_input=args.normalize_input,  is_resnet=args.is_resnet)
 
     #loss
     loss = ClassificationLoss()
@@ -103,8 +103,13 @@ if __name__ == '__main__':
     parser.add_argument('--momentum', type=float, default=0.9)
     parser.add_argument('--n_epochs', type=int, default=1)
     parser.add_argument('--early_stop', type=int, default=10)
-    parser.add_argument('--norm', default=True)
+    parser.add_argument('--norm', default=False)
     parser.add_argument('--is_resnet',default=False)
+    parser.add_argument('--resize',default=None)
+    parser.add_argument('--normalize_input',default=False)
+    parser.add_argument('--random_horizontal_flip',default=False)
+    parser.add_argument('--random_crop', default=False)
+
 
 
     args = parser.parse_args()
