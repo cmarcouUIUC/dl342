@@ -77,7 +77,7 @@ def accuracy(outputs, labels):
     outputs_idx = outputs.max(1)[1].type_as(labels)
     return outputs_idx.eq(labels).float().mean()
 
-def get_transform(resize=None, random_crop=None, random_horizontal_flip=False, normalize=False, is_resnet=False):
+def get_transform(resize=None, random_crop=None, random_horizontal_flip=False, normalize=False, color_jitter=False, is_resnet=False):
     import torchvision
     if is_resnet:
       return torchvision.transforms.Compose([
@@ -91,10 +91,12 @@ def get_transform(resize=None, random_crop=None, random_horizontal_flip=False, n
       transform.append(torchvision.transform.Resize(resize))
     if random_crop is not None:
       transform.append(torchvision.transforms.RandomResizedCrop(random_crop))
-    if random_horizontal_flip:
+    if random_horizontal_flip is True:
       transform.append(torchvision.transforms.RandomHorizontalFlip())
+    if color_jitter is True:
+      transform.append(torchvision.transforms.ColorJitter(brightness=.5, hue=.3))
     transform.append(torchvision.transforms.ToTensor())
-    if normalize:
+    if normalize is True:
       transform.append(torchvision.transforms.Normalize(mean=[.5,.5,.5],std=[.5,.5,.5]))
     return torchvision.transforms.Compose(transform)
 

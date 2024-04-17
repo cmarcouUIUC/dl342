@@ -17,8 +17,8 @@ def train(args):
 
 
     #load data
-    train_data=load_data('data/train', resize=arg.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, normalize_input=args.normalize_input,  is_resnet=args.is_resnet)
-    valid_data=load_data('data/valid', resize=arg.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, normalize_input=args.normalize_input,  is_resnet=args.is_resnet)
+    train_data=load_data('data/train', resize=arg.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
+    valid_data=load_data('data/valid', resize=arg.resize, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
 
     #loss
     loss = ClassificationLoss()
@@ -109,6 +109,8 @@ if __name__ == '__main__':
     parser.add_argument('--normalize_input',default=False)
     parser.add_argument('--random_horizontal_flip',default=False)
     parser.add_argument('--random_crop', default=False)
+    parser.add_argument('--color_jitter', default=False)
+
 
 
 
