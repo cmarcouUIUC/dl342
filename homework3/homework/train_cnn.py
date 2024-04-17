@@ -65,7 +65,7 @@ def train(args):
         valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy
       valid_logger.add_scalar('accuracy', np.mean(valid_acc), global_step)
-      valid_logger.add_scalar('accuracy', np.mean(val_loss), global_step)
+      valid_logger.add_scalar('accuracy', np.mean(valid_loss), global_step)
 
       if epoch <= args.early_stop:
         if epoch == 1:
