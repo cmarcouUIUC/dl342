@@ -13,7 +13,7 @@ def train(args):
         valid_logger = tb.SummaryWriter(path.join(args.log_dir, 'valid'))
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    model = CNNClassifier(norm=args.norm).to(device)
+    model = CNNClassifier(norm=args.norm, residual=args.residual_connections).to(device)
 
 
     #load data
@@ -110,6 +110,7 @@ if __name__ == '__main__':
     parser.add_argument('--random_horizontal_flip',default=False)
     parser.add_argument('--random_crop', default=False)
     parser.add_argument('--color_jitter', default=False)
+    parser.add_argument('--residual_connections',default=False)
 
 
 

@@ -7,7 +7,7 @@ class ClassificationLoss(torch.nn.Module):
         return F.cross_entropy(input,target)
 
 
-class CNNClassifier(torch.nn.Module):
+class CNNClassifier(torch.nn.Module, norm=False, residual=False):
 
   #Set up block
   class Block(torch.nn.Module):
@@ -27,7 +27,8 @@ class CNNClassifier(torch.nn.Module):
       )
     
     def forward(self, x):
-        return self.net(x)
+      identity=x
+      return self.net(x) + identity if residual == True else return self.net(x)
       
   def __init__(self, layers=[32,64,128], norm=True, n_input_channels=3):
     super().__init__()
