@@ -13,7 +13,7 @@ def train(args):
         valid_logger = tb.SummaryWriter(path.join(args.log_dir, 'valid'))
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    model = CNNClassifier().to(device)
+    model = CNNClassifier(norm=args.norm).to(device)
 
 
     #load data
@@ -102,6 +102,7 @@ if __name__ == '__main__':
     parser.add_argument('--n_epochs', type=int, default=1)
     parser.add_argument('--early_stop', type=int, default=10)
     parser.add_argument('--norm', default=True)
+    parser.add_argument('--is_resnet',default=False)
 
 
     args = parser.parse_args()
