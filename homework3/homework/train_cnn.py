@@ -111,7 +111,9 @@ if __name__ == '__main__':
     parser.add_argument('--random_crop', default=False)
     parser.add_argument('--color_jitter', default=False)
     parser.add_argument('--residual_connections',default=False)
-    parser.add_argument('--random_rotate',default=False)
+    parser.add_argument('--random_rotate',default=False)    
+    parser.add_argument('--lr_schedule',default=False)
+
 
 
 
