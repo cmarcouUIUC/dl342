@@ -15,13 +15,7 @@ def train(args):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = CNNClassifier(norm=args.norm, residual=args.residual_connections).to(device)
 
-    scheduler = None
-    if args.lr_schedule is not None:
-      if args.lr_schedule == 'step':
-        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
-      elif args.lr_schedule =='plateau':
-        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max')
-      else: scheduler = None
+
 
 
     #load data
@@ -33,6 +27,14 @@ def train(args):
 
     #initialize optimizer
     optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
+
+    scheduler = None
+    if args.lr_schedule is not None:
+      if args.lr_schedule == 'step':
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+      elif args.lr_schedule =='plateau':
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max')
+      else: scheduler = None
 
     global_step=0
     best_loss = 1000000
