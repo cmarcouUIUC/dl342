@@ -61,7 +61,7 @@ def train(args):
         optimizer.step()
         global_step+=1
       #scheduler.step()
-      scheduler.step(np.mean(accuracies))
+      if scheduler is not None: scheduler.step(np.mean(accuracies))
       #log accuracy
 
       #check on valid accuracy
