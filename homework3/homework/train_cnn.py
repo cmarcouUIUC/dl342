@@ -15,6 +15,14 @@ def train(args):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = CNNClassifier(norm=args.norm, residual=args.residual_connections).to(device)
 
+    scheduler = None
+    if args.lr_schedule is not None:
+      if args.lr_schedule == 'step':
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+      elif args.lr_schedule =='plateau':
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max')
+      else: scheduler = None
+
 
     #load data
     train_data=load_data('data/train', resize=args.resize, random_rotate=args.random_rotate, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
@@ -33,6 +41,7 @@ def train(args):
     for epoch in range(args.n_epochs):
       
       #train loop
+      accuracies=[]
       for i,data in enumerate(train_data):
         model.train()
         inputs, labels = data
@@ -43,6 +52,7 @@ def train(args):
         loss_val = loss(o, labels)
 
         #track accuracy and log loss
+        accuracies.append(accuracy(o,labels).detach().cpu().numpy())
         train_logger.add_scalar('accuracy', accuracy(o, labels),global_step)
         #train_acc.append(accuracy(o, labels).cpu().detach().numpy())
         train_logger.add_scalar('loss', loss_val, global_step)
@@ -50,7 +60,8 @@ def train(args):
         loss_val.backward()
         optimizer.step()
         global_step+=1
-      
+      #scheduler.step()
+      scheduler.step(np.mean(accuracies))
       #log accuracy
 
       #check on valid accuracy
@@ -112,7 +123,7 @@ if __name__ == '__main__':
     parser.add_argument('--color_jitter', default=False)
     parser.add_argument('--residual_connections',default=False)
     parser.add_argument('--random_rotate',default=False)    
-    parser.add_argument('--lr_schedule',default=False)
+    parser.add_argument('--lr_schedule',default=None)
 
 
 
