@@ -96,7 +96,7 @@ def get_transform(resize=None, random_crop=None, random_horizontal_flip=False, n
     if random_rotate is True:
       transform.append(torchvision.transforms.RandomRotation())
     if color_jitter is True:
-      transform.append(torchvision.transforms.ColorJitter(brightness=.5, hue=.3))
+      transform.append(torchvision.transforms.ColorJitter(brightness=.7,contrast=.3, saturation=.3, hue=.3))
     transform.append(torchvision.transforms.ToTensor())
     if normalize is True:
       transform.append(torchvision.transforms.Normalize(mean=[.5,.5,.5],std=[.5,.5,.5]))
