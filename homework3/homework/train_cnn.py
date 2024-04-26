@@ -15,6 +15,11 @@ def train(args):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = CNNClassifier(norm=args.norm, residual=args.residual_connections).to(device)
 
+    if args.seed is not None:
+      torch.manual_seed(args.seed)
+      np.random.seed(args.seed)
+      
+
 
 
 
@@ -126,6 +131,8 @@ if __name__ == '__main__':
     parser.add_argument('--residual_connections',default=False)
     parser.add_argument('--random_rotate',default=False)    
     parser.add_argument('--lr_schedule',default=None)
+    parser.add_argument('--seed',default=None, type=int)
+
 
 
 
