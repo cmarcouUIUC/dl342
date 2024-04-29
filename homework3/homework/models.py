@@ -37,7 +37,7 @@ class CNNClassifier(torch.nn.Module):
         identity = self.downsample(x)
       return self.net(x) + identity if self.residual == True else self.net(x)
       
-  def __init__(self, norm, residual, layers=[32,64,128],  n_input_channels=3):
+  def __init__(self, norm=False, residual=False, layers=[32,64,128],  n_input_channels=3):
     super().__init__()
     #Initial convolution, larger kernel with padding and stride
     #Use maxpooling here to reduce dimensions/down-sample
