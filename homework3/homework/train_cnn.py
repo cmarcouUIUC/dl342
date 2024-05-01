@@ -33,8 +33,8 @@ def train(args):
     #initialize optimizer
     if args.optim == 'SGD':
       optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
-    elif args.oprtim == 'ADAM':
-            optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
+    elif args.optim == 'ADAM':
+            optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
 
 
     scheduler = None
