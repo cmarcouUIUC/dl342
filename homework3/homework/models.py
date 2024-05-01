@@ -53,13 +53,15 @@ class CNNClassifier(torch.nn.Module):
     #final network setup
     self.network = torch.nn.Sequential(*L)
     #classifier (6 outputs for 6 classification objects)
-    self.classifier = torch.nn.Linear(c, 6)
+    self.fcl = torch.nn.Linear(c,4096)
+    self.classifier = torch.nn.Linear(4096, 6)
     
   def forward(self, x):
     # Compute the features
     z = self.network(x)
     # Global average pooling along spatial dimensions
     z = z.mean(dim=[2,3])
+    z = self.fcl(z)
     # Classify
     return self.classifier(z)
 
