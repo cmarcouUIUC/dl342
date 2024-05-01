@@ -31,7 +31,11 @@ def train(args):
     loss = ClassificationLoss()
 
     #initialize optimizer
-    optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
+    if args.optim == 'SGD':
+      optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
+    elif args.oprtim == 'ADAM':
+            optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
+
 
     scheduler = None
     if args.lr_schedule is not None:
@@ -131,6 +135,7 @@ if __name__ == '__main__':
     parser.add_argument('--residual_connections',default=False)
     parser.add_argument('--random_rotate',default=False)    
     parser.add_argument('--lr_schedule',default=None)
+    parser.add_argument('--optim',default='SGD')
     parser.add_argument('--seed',default=None, type=int)
 
 
