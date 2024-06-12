@@ -22,6 +22,37 @@ def train(args):
     Hint: If you found a good data augmentation parameters for the CNN, use them here too. Use dense_transforms
     Hint: Use the log function below to debug and visualize your model
     """
+
+    device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+    model = CNNClassifier(norm=args.norm, residual=args.residual_connections).to(device)
+
+    if args.seed is not None:
+      torch.manual_seed(args.seed)
+      np.random.seed(args.seed)
+
+
+    #load data
+    train_data=load_dense_data('dense_data/train', resize=args.resize, random_rotate=args.random_rotate, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
+    valid_data=load_dense_data('dense_data/valid', resize=args.resize, random_rotate=args.random_rotate, random_crop=args.random_crop, random_horizontal_flip=args.random_horizontal_flip, color_jitter=args.color_jitter, normalize=args.normalize_input,  is_resnet=args.is_resnet)
+
+    #loss
+    loss = ClassificationLoss()
+
+    #initialize optimizer
+    if args.optim == 'SGD':
+      optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
+    elif args.optim == 'ADAM':
+            optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
+
+
+    scheduler = None
+    if args.lr_schedule is not None:
+      if args.lr_schedule == 'step':
+        scheduler = torch.optim.lr_scheduler.StepLR(optimizer, step_size=30, gamma=0.1)
+      elif args.lr_schedule =='plateau':
+        scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max')
+      else: scheduler = None
+
     save_model(model)
 
 
