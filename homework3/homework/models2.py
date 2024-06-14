@@ -77,9 +77,9 @@ class FCN(torch.nn.Module):
         Hint: Use residual connections
         Hint: Always pad by kernel_size / 2, use an odd kernel_size
         """
-        self.conv1=torch.nn.Conv2d(n_input_channels, 6, kernel_size=7, padding=3, stride=2)
-        self.conv11=torch.nn.Conv2d(in_channels=6, out_channels=6, kernel_size=1)
-        self.upconv1=torch.nn.ConvTranspose2d(in_channels=6,out_channels=6,padding=3, kernel_size=7,stride=2,output_padding=1)
+        self.conv1=torch.nn.Conv2d(n_input_channels, 5, kernel_size=7, padding=3, stride=2)
+        self.conv11=torch.nn.Conv2d(in_channels=5, out_channels=5, kernel_size=1)
+        self.upconv1=torch.nn.ConvTranspose2d(in_channels=5,out_channels=5,padding=3, kernel_size=7,stride=2,output_padding=1)
     def forward(self, x):
         """
         Your code here

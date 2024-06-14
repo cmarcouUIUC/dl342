@@ -2,7 +2,7 @@ import torch
 import numpy as np
 
 from .models import FCN, save_model,  ClassificationLoss
-from .utils import load_dense_data, DENSE_CLASS_DISTRIBUTION, ConfusionMatrix
+from .utils import load_dense_data, DENSE_CLASS_DISTRIBUTION, ConfusionMatrix, accuracy
 from . import dense_transforms
 import torch.utils.tensorboard as tb
 
@@ -71,8 +71,8 @@ def train(args):
         loss_val = loss(o, labels)
 
         #track accuracy, iou, and log loss
-        accuracies.append(accuracy(o.argmax(1),labels).detach().cpu().numpy())
-        train_logger.add_scalar('accuracy', accuracy(o.argmax(1), labels),global_step)
+        accuracies.append(accuracy(o,labels).detach().cpu().numpy())
+        train_logger.add_scalar('accuracy', accuracy(o, labels),global_step)
         #train_acc.append(accuracy(o, labels).cpu().detach().numpy())
         train_logger.add_scalar('loss', loss_val, global_step)
 
@@ -90,11 +90,11 @@ def train(args):
       for i,data in enumerate(valid_data):
         model.eval()
         inputs, labels = data
-        inputs, labels = inputs.to(device), labels.to(device)
+        inputs, labels = inputs.to(device).float(), labels.to(device).long()
         valid_o = model(inputs)
-        valid_l = loss(valid_o.argmax(1), labels)
+        valid_l = loss(valid_o, labels)
 
-        valid_acc.append(accuracy(valid_o.argmax(1), labels).cpu().detach().numpy())
+        valid_acc.append(accuracy(valid_o, labels).cpu().detach().numpy())
         valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy
       valid_logger.add_scalar('accuracy', np.mean(valid_acc), global_step)
