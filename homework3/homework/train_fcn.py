@@ -61,6 +61,7 @@ def train(args):
       
       #train loop
       accuracies=[]
+      c=ConfusionMatrix()
       for i,data in enumerate(train_data):
         model.train()
         inputs, labels = data
@@ -69,12 +70,15 @@ def train(args):
         optimizer.zero_grad()
         o = model(inputs)
         loss_val = loss(o, labels)
+        c.add(preds=o.argmax(1),labels=labels)
 
         #track accuracy, iou, and log loss
         accuracies.append(accuracy(o,labels).detach().cpu().numpy())
-        train_logger.add_scalar('accuracy', accuracy(o, labels),global_step)
         #train_acc.append(accuracy(o, labels).cpu().detach().numpy())
+        train_logger.add_scalar('accuracy', c.global_accuracy, global_step)
         train_logger.add_scalar('loss', loss_val, global_step)
+        train_logger.add_scalar('IOU', c.iou, global_step)
+
 
         loss_val.backward()
         optimizer.step()
@@ -87,18 +91,20 @@ def train(args):
       #check on valid accuracy
       valid_acc = []
       valid_loss = []
+      c2=ConfusionMatrix()
       for i,data in enumerate(valid_data):
         model.eval()
         inputs, labels = data
         inputs, labels = inputs.to(device).float(), labels.to(device).long()
         valid_o = model(inputs)
         valid_l = loss(valid_o, labels)
-
-        valid_acc.append(accuracy(valid_o, labels).cpu().detach().numpy())
+        c2.add(preds=valid_o.argmax(1),labels=valid_l)
         valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy
-      valid_logger.add_scalar('accuracy', np.mean(valid_acc), global_step)
+      valid_logger.add_scalar('accuracy', c2.global_accuracy, global_step)
       valid_logger.add_scalar('loss', np.mean(valid_loss), global_step)
+      valid_logger.add_scalar('IOU', c2.iou, global_step)
+
 
       if epoch <= args.early_stop:
         if epoch == 1:
