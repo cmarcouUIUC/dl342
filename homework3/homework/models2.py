@@ -67,7 +67,35 @@ class CNNClassifier(torch.nn.Module):
 
 
 class FCN(torch.nn.Module):
-    def __init__(self, n_input_channels=3):
+
+    class Block(torch.nn.Module):
+      def __init__(self, n_input, n_output, norm, residual, stride=1,):
+        super().__init__()
+        self.residual=residual
+        self.net = torch.nn.Sequential(
+          #Strided Convolution
+          torch.nn.Conv2d(n_input, n_output, kernel_size=3, padding=1, stride=stride),
+          #Non-lin activation
+          torch.nn.ReLU(),
+          torch.nn.BatchNorm2d(n_output) if norm == True else torch.nn.Identity(),
+          #non-strided convolution
+          torch.nn.Conv2d(n_output, n_output, kernel_size=3, padding=1),
+          #non-lin activation
+          torch.nn.ReLU(),
+          torch.nn.BatchNorm2d(n_output) if norm == True else torch.nn.Identity()
+        )
+        self.downsample = None
+        if n_input != n_output or stride!=1:
+          self.downsample = torch.nn.Sequential(torch.nn.Conv2d(n_input, n_output, kernel_size=1),
+          torch.nn.BatchNorm2d(n_output) if norm == True else torch.nn.Identity())
+      
+      def forward(self, x):
+        identity=x
+        if self.downsample is not None:
+          identity = self.downsample(x)
+        return self.net(x) + identity if self.residual == True else self.net(x)
+
+    def __init__(self, norm=False, residual=False, layers=[32,64],  n_input_channels=3):
         super().__init__()
         """
         Your code here.
@@ -77,9 +105,35 @@ class FCN(torch.nn.Module):
         Hint: Use residual connections
         Hint: Always pad by kernel_size / 2, use an odd kernel_size
         """
-        self.conv1=torch.nn.Conv2d(n_input_channels, 5, kernel_size=7, padding=3, stride=2)
-        self.conv11=torch.nn.Conv2d(in_channels=5, out_channels=5, kernel_size=1)
-        self.upconv1=torch.nn.ConvTranspose2d(in_channels=5,out_channels=5,padding=3, kernel_size=7,stride=2,output_padding=1)
+        #Initial convolution, larger kernel with padding and stride
+        #Use maxpooling here to reduce dimensions/down-sample
+        L = [torch.nn.Conv2d(n_input_channels, 32, kernel_size=7, padding=3, stride=2),
+            torch.nn.ReLU(),
+            torch.nn.BatchNorm2d(32) if norm == True else torch.nn.Identity(),
+            torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)]
+        c = 32
+        #Add block for specified channels
+        for l in layers:
+            L.append(self.Block(c, l, norm, residual, stride=2))
+            c = l
+        #final network setup
+        self.network = torch.nn.Sequential(*L)
+        self.conv=torch.nn.Conv2d(c, c, kernel_size=3, padding=1)
+        self.relu=torch.nn.ReLU()
+        self.networkup = torch.nn.Sequential(
+            torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=3, kernel_size=7,stride=2,output_padding=1),
+            torch.nn.ReLU(),
+            torch.nn.ConvTranspose2d(in_channels=32,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ReLU(),
+            torch.nn.ConvTranspose2d(in_channels=32,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ReLU(),
+            torch.nn.ConvTranspose2d(in_channels=32,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ReLU(),
+            torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=1, kernel_size=3)
+        )
+
+
+
     def forward(self, x):
         """
         Your code here
@@ -90,9 +144,10 @@ class FCN(torch.nn.Module):
               if required (use z = z[:, :, :H, :W], where H and W are the height and width of a corresponding strided
               convolution
         """
-        z=self.conv1(x)
-        y=self.conv11(z)
-        return self.upconv1(y)
+        z=self.network(x)
+        z=self.conv(z)
+        z=self.relu(z)
+        return self.networkup(z)
 
 
 

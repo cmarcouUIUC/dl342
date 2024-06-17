@@ -127,7 +127,9 @@ class FCN(torch.nn.Module):
             torch.nn.ReLU(),
             torch.nn.ConvTranspose2d(in_channels=32,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
             torch.nn.ReLU(),
-            torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=1, kernel_size=3, output_padding=1)
+            torch.nn.ConvTranspose2d(in_channels=32,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ReLU(),
+            torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=1, kernel_size=3)
         )
 
 
@@ -143,10 +145,9 @@ class FCN(torch.nn.Module):
               convolution
         """
         z=self.network(x)
-        z=z.mean(dim=[2,3])
-        z=self.conv1(z)
+        z=self.conv(z)
         z=self.relu(z)
-        return self.neworkup(z)
+        return self.networkup(z)
 
 
 
