@@ -5,6 +5,7 @@ from .models import FCN, save_model,  ClassificationLoss
 from .utils import load_dense_data, DENSE_CLASS_DISTRIBUTION, ConfusionMatrix, accuracy
 from . import dense_transforms
 import torch.utils.tensorboard as tb
+import torchvision
 
 
 def train(args):
@@ -30,9 +31,14 @@ def train(args):
       torch.manual_seed(args.seed)
       np.random.seed(args.seed)
 
+    #transforms
+    transforms=dense_transforms.Compose([
+      dense_transforms.ColorJitter(brightness=1,contrast=.5, saturation=.5, hue=.5),
+      torchvision.transforms.ToTensor(),
+    ])
 
     #load data
-    train_data=load_dense_data('dense_data/train')
+    train_data=load_dense_data('dense_data/train', transform=transforms)
     valid_data=load_dense_data('dense_data/valid')
 
     #loss
