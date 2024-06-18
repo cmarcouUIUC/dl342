@@ -33,8 +33,10 @@ def train(args):
 
     #transforms
     transforms=dense_transforms.Compose([
+      dense_transforms.RandomHorizontalFlip(),
       dense_transforms.ColorJitter(brightness=1,contrast=.5, saturation=.5, hue=.5),
-      torchvision.transforms.ToTensor(),
+      dense_transforms.RandomResizedCrop((128,96)),
+      dense_transforms.ToTensor(),
     ])
 
     #load data
