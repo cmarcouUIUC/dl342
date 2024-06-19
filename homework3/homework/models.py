@@ -108,12 +108,13 @@ class FCN(torch.nn.Module):
         """
         #Initial convolution, larger kernel with padding and stride
         #Use maxpooling here to reduce dimensions/down-sample
-        L = [torch.nn.Conv2d(n_input_channels, 32, kernel_size=7, padding=3, stride=2),
-            torch.nn.ReLU(),
-            torch.nn.BatchNorm2d(32) if norm == True else torch.nn.Identity(),
-            torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)]
-
-        self.c1  = torch.nn.Sequential(*L)
+       
+        self.c0 = torch.nn.Sequential(
+          torch.nn.Conv2d(n_input_channels, 32, kernel_size=7, padding=3, stride=2),
+          torch.nn.ReLU(),
+          torch.nn.BatchNorm2d(32) if norm == True else torch.nn.Identity(),
+        )
+        self.c1  = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.c2 = self.Block(32, 64, norm, residual, stride=2)
         self.c3 = self.Block(64, 128, norm, residual, stride=2)
         self.u1 = torch.nn.Sequential(
@@ -127,10 +128,12 @@ class FCN(torch.nn.Module):
             torch.nn.ReLU()
         )
         self.u3 = torch.nn.Sequential(
-            torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=1, kernel_size=3),
+            torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=1, kernel_size=3),
             torch.nn.ReLU(),
-            torch.nn.ConvTranspose2d(in_channels=5,out_channels=5,padding=3, kernel_size=7,stride=2,output_padding=1)
+            torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=3, kernel_size=7,stride=2,output_padding=1),
+            torch.nn.ReLU()
         )
+        self.u4 = torch.nn.ConvTranspose2d(5,5,kernel_size=1)
 
 
 
@@ -144,8 +147,9 @@ class FCN(torch.nn.Module):
               if required (use z = z[:, :, :H, :W], where H and W are the height and width of a corresponding strided
               convolution
         """
-        x1=self.c1(x)
-        
+        x0=self.c0(x)
+        #print(x0.shape)
+        x1=self.c1(x0)
         #print(x1.shape)
         x2=self.c2(x1)
         #print(x2.shape)
@@ -155,10 +159,12 @@ class FCN(torch.nn.Module):
         #print(x4.shape)
         x4=torch.cat([x2,x4],dim=1)
         x5=self.u2(x4)
+        x5=torch.cat([x0,x5],dim=1)
         #print(x5.shape)
         x6=self.u3(x5)
         #print(x6.shape)
-        return x6
+        x7=self.u4(x6)
+        return x7
 
 
 
