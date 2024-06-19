@@ -112,25 +112,24 @@ class FCN(torch.nn.Module):
             torch.nn.ReLU(),
             torch.nn.BatchNorm2d(32) if norm == True else torch.nn.Identity(),
             torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)]
-        c = 32
-        #Add block for specified channels
-        for l in layers:
-            L.append(self.Block(c, l, norm, residual, stride=2))
-            c = l
-        #final network setup
-        self.network = torch.nn.Sequential(*L)
-        self.conv=torch.nn.Conv2d(c, c, kernel_size=3, padding=1)
-        self.relu=torch.nn.ReLU()
-        self.networkup = torch.nn.Sequential(
-            torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=3, kernel_size=7,stride=2,output_padding=1),
+
+        self.c1  = torch.nn.Sequential(*L)
+        self.c2 = self.Block(32, 64, norm, residual, stride=2)
+        self.c3 = self.Block(64, 128, norm, residual, stride=2)
+        self.u1 = torch.nn.Sequential(
+            torch.nn.ConvTranspose2d(in_channels=128,out_channels=64,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ReLU()
+        )
+        self.u2 = torch.nn.Sequential(
+            torch.nn.ConvTranspose2d(in_channels=128,out_channels=64,padding=1, kernel_size=3,stride=2,output_padding=1),
             torch.nn.ReLU(),
-            torch.nn.ConvTranspose2d(in_channels=32,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ReLU()
+        )
+        self.u3 = torch.nn.Sequential(
+            torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=1, kernel_size=3),
             torch.nn.ReLU(),
-            torch.nn.ConvTranspose2d(in_channels=32,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
-            torch.nn.ReLU(),
-            torch.nn.ConvTranspose2d(in_channels=32,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
-            torch.nn.ReLU(),
-            torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=1, kernel_size=3)
+            torch.nn.ConvTranspose2d(in_channels=5,out_channels=5,padding=3, kernel_size=7,stride=2,output_padding=1)
         )
 
 
@@ -145,10 +144,21 @@ class FCN(torch.nn.Module):
               if required (use z = z[:, :, :H, :W], where H and W are the height and width of a corresponding strided
               convolution
         """
-        z=self.network(x)
-        z=self.conv(z)
-        z=self.relu(z)
-        return self.networkup(z)
+        x1=self.c1(x)
+        
+        #print(x1.shape)
+        x2=self.c2(x1)
+        #print(x2.shape)
+        x3=self.c3(x2)
+        #print(x3.shape)
+        x4=self.u1(x3)
+        #print(x4.shape)
+        x4=torch.cat([x2,x4],dim=1)
+        x5=self.u2(x4)
+        #print(x5.shape)
+        x6=self.u3(x5)
+        #print(x6.shape)
+        return x6
 
 
 
