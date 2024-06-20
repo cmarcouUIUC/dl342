@@ -148,22 +148,29 @@ class FCN(torch.nn.Module):
               convolution
         """
         x0=self.c0(x)
-        #print(x0.shape)
+        #print("x0: ", x0.shape)
         x1=self.c1(x0)
-        #print(x1.shape)
+        #print("x1: ", x1.shape)
         x2=self.c2(x1)
-        #print(x2.shape)
+        #x2=x2[:,:,:,:1]
+        #print('x2:',x2.shape)
         x3=self.c3(x2)
-        #print(x3.shape)
+        #print('x3:',x3.shape)
         x4=self.u1(x3)
-        #print(x4.shape)
+        x4=x4[:,:,:x2.size(2),:x2.size(3)]
+        #print('x4:',x4.shape)
         x4=torch.cat([x2,x4],dim=1)
+        #print('x4cat:',x4.shape)
         x5=self.u2(x4)
+        #print('x5:',x5.shape)
+        x5=x5[:,:,:x0.size(2),:x0.size(3)]
         x5=torch.cat([x0,x5],dim=1)
-        #print(x5.shape)
+        #print('x5:',x5.shape)
         x6=self.u3(x5)
-        #print(x6.shape)
+        x6=x6[:,:,:x.size(2),:x.size(3)]
+        #print('x6:',x6.shape)
         x7=self.u4(x6)
+        #print('x7:',x7.shape)
         return x7
 
 
