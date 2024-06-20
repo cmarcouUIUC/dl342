@@ -106,7 +106,7 @@ def train(args):
         inputs, labels = inputs.to(device).float(), labels.to(device).long()
         valid_o = model(inputs)
         valid_l = loss(valid_o, labels)
-        c2.add(preds=valid_o.argmax(1),labels=valid_l)
+        c2.add(preds=valid_o.argmax(1), labels=labels)
         valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy
       valid_logger.add_scalar('accuracy', c2.global_accuracy, global_step)
