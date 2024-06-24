@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+from torch.nn.modules import Conv2d
 from . import dense_transforms
 
 
@@ -133,7 +134,11 @@ class FCN(torch.nn.Module):
             torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=3, kernel_size=7,stride=2,output_padding=1),
             torch.nn.ReLU()
         )
-        self.u4 = torch.nn.ConvTranspose2d(5,5,kernel_size=1)
+        self.u4 = torch.nn.Sequential(
+          torch.nn.ConvTranspose2d(5,5,kernel_size=1),
+          torch.nn.ReLU(),
+          torch.nn.Conv2d(5,5,kernel_size=1)
+        )
 
 
 
