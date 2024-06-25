@@ -84,7 +84,11 @@ class FCN(torch.nn.Module):
           torch.nn.Conv2d(n_output, n_output, kernel_size=3, padding=1),
           #non-lin activation
           torch.nn.ReLU(),
-          torch.nn.BatchNorm2d(n_output) if norm == True else torch.nn.Identity()
+          torch.nn.BatchNorm2d(n_output) if norm == True else torch.nn.Identity(),
+          #1x1 convolution
+          torch.nn.Conv2d(n_output, n_output, kernel_size=1),
+          #non-lin activation
+          torch.nn.ReLU()
         )
         self.downsample = None
         if n_input != n_output or stride!=1:
