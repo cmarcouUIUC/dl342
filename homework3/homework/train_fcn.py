@@ -33,15 +33,22 @@ def train(args):
 
     #transforms
     transforms=dense_transforms.Compose([
+      
       dense_transforms.RandomHorizontalFlip(),
       dense_transforms.ColorJitter(brightness=1,contrast=.5, saturation=.5, hue=.5),
       dense_transforms.RandomResizedCrop((128,96)),
       dense_transforms.ToTensor(),
+      dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+    ])
+
+    transformsvalid=dense_transforms.Compose([
+      dense_transforms.ToTensor(),
+      dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     #load data
     train_data=load_dense_data('dense_data/train', transform=transforms)
-    valid_data=load_dense_data('dense_data/valid')
+    valid_data=load_dense_data('dense_data/valid', transform=transformsvalid)
 
     #loss
     loss = ClassificationLoss()
@@ -81,7 +88,7 @@ def train(args):
         c.add(preds=o.argmax(1),labels=labels)
 
         #track accuracy, iou, and log loss
-        accuracies.append(accuracy(o,labels).detach().cpu().numpy())
+        #accuracies.append(accuracy(o,labels).detach().cpu().numpy())
         #train_acc.append(accuracy(o, labels).cpu().detach().numpy())
         train_logger.add_scalar('accuracy', c.global_accuracy, global_step)
         train_logger.add_scalar('loss', loss_val, global_step)
