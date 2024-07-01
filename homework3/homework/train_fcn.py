@@ -27,6 +27,9 @@ def train(args):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = FCN().to(device)
 
+    weights = [1-i for i in DENSE_CLASS_DISTRIBUTION]
+    weights = torch.tensor(weights).to(device)
+
     if args.seed is not None:
       torch.manual_seed(args.seed)
       np.random.seed(args.seed)
@@ -84,7 +87,7 @@ def train(args):
 
         optimizer.zero_grad()
         o = model(inputs)
-        loss_val = loss(o, labels)
+        loss_val = loss(o, labels, weights)
         c.add(preds=o.argmax(1),labels=labels)
 
         #track accuracy, iou, and log loss
@@ -112,7 +115,7 @@ def train(args):
         inputs, labels = data
         inputs, labels = inputs.to(device).float(), labels.to(device).long()
         valid_o = model(inputs)
-        valid_l = loss(valid_o, labels)
+        valid_l = loss(valid_o, labels, weights)
         c2.add(preds=valid_o.argmax(1), labels=labels)
         valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy

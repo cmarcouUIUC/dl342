@@ -5,8 +5,8 @@ from . import dense_transforms
 
 
 class ClassificationLoss(torch.nn.Module):
-    def forward(self, input, target):
-        return F.cross_entropy(input,target)
+    def forward(self, input, target, weight):
+        return F.cross_entropy(input,target, weight)
 
 
 class CNNClassifier(torch.nn.Module):
