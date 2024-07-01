@@ -141,6 +141,8 @@ class FCN(torch.nn.Module):
         self.u4 = torch.nn.Sequential(
           torch.nn.ConvTranspose2d(5,5,kernel_size=1),
           torch.nn.ReLU(),
+          torch.nn.Conv2d(5,5,kernel_size=1),
+          torch.nn.ReLU(),
           torch.nn.Conv2d(5,5,kernel_size=1)
         )
 
