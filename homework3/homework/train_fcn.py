@@ -41,12 +41,12 @@ def train(args):
       dense_transforms.ColorJitter(brightness=1,contrast=.5, saturation=.5, hue=.5),
       dense_transforms.RandomResizedCrop((128,96)),
       dense_transforms.ToTensor(),
-      dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+      #dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     transformsvalid=dense_transforms.Compose([
       dense_transforms.ToTensor(),
-      dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+      #dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     #load data
