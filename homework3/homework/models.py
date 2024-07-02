@@ -125,23 +125,31 @@ class FCN(torch.nn.Module):
         self.c4= self.Block(128, 256, norm, residual, stride=2)
         self.u1 = torch.nn.Sequential(
             torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=2,output_padding=1),
-            torch.nn.ReLU()
+            torch.nn.ReLU(),
+            torch.nn.BatchNorm2d(128) if norm == True else torch.nn.Identity(),
+
         )
         self.u2 = torch.nn.Sequential(
             torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=2,output_padding=1),
             torch.nn.ReLU(),
+            torch.nn.BatchNorm2d(128) if norm == True else torch.nn.Identity(),
             torch.nn.ConvTranspose2d(in_channels=128,out_channels=64,padding=1, kernel_size=3,stride=2,output_padding=1),
-            torch.nn.ReLU()
+            torch.nn.ReLU(),
+            torch.nn.BatchNorm2d(64) if norm == True else torch.nn.Identity(),
         )
         self.u3 = torch.nn.Sequential(
             torch.nn.ConvTranspose2d(in_channels=96,out_channels=64,padding=1, kernel_size=3),
             torch.nn.ReLU(),
+            torch.nn.BatchNorm2d(64) if norm == True else torch.nn.Identity(),
             torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=3, kernel_size=7,stride=2,output_padding=1),
-            torch.nn.ReLU()
+            torch.nn.ReLU(),
+            torch.nn.BatchNorm2d(32) if norm == True else torch.nn.Identity(),
+
         )
         self.u4 = torch.nn.Sequential(
             torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=1, kernel_size=3),
             torch.nn.ReLU(),
+            torch.nn.BatchNorm2d(32) if norm == True else torch.nn.Identity(),
             torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=3, kernel_size=7,stride=2,output_padding=1),
             torch.nn.ReLU()
         )
