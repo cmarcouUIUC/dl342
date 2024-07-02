@@ -122,23 +122,30 @@ class FCN(torch.nn.Module):
         self.c1  = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.c2 = self.Block(32, 64, norm, residual, stride=2)
         self.c3 = self.Block(64, 128, norm, residual, stride=2)
+        self.c4= self.Block(128, 256, norm, residual, stride=2)
         self.u1 = torch.nn.Sequential(
-            torch.nn.ConvTranspose2d(in_channels=128,out_channels=64,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=2,output_padding=1),
             torch.nn.ReLU()
         )
         self.u2 = torch.nn.Sequential(
-            torch.nn.ConvTranspose2d(in_channels=128,out_channels=64,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=2,output_padding=1),
             torch.nn.ReLU(),
-            torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ConvTranspose2d(in_channels=128,out_channels=64,padding=1, kernel_size=3,stride=2,output_padding=1),
             torch.nn.ReLU()
         )
         self.u3 = torch.nn.Sequential(
+            torch.nn.ConvTranspose2d(in_channels=96,out_channels=64,padding=1, kernel_size=3),
+            torch.nn.ReLU(),
+            torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=3, kernel_size=7,stride=2,output_padding=1),
+            torch.nn.ReLU()
+        )
+        self.u4 = torch.nn.Sequential(
             torch.nn.ConvTranspose2d(in_channels=64,out_channels=32,padding=1, kernel_size=3),
             torch.nn.ReLU(),
             torch.nn.ConvTranspose2d(in_channels=32,out_channels=5,padding=3, kernel_size=7,stride=2,output_padding=1),
             torch.nn.ReLU()
         )
-        self.u4 = torch.nn.Sequential(
+        self.u5 = torch.nn.Sequential(
           torch.nn.ConvTranspose2d(5,5,kernel_size=1),
           torch.nn.ReLU(),
           torch.nn.Conv2d(5,5,kernel_size=1),
@@ -167,22 +174,33 @@ class FCN(torch.nn.Module):
         #print('x2:',x2.shape)
         x3=self.c3(x2)
         #print('x3:',x3.shape)
-        x4=self.u1(x3)
-        x4=x4[:,:,:x2.size(2),:x2.size(3)]
+        x4=self.c4(x3)
         #print('x4:',x4.shape)
-        x4=torch.cat([x2,x4],dim=1)
-        #print('x4cat:',x4.shape)
-        x5=self.u2(x4)
+
+
+
+        x5=self.u1(x4)
+        x5=x5[:,:,:x3.size(2),:x3.size(3)]
         #print('x5:',x5.shape)
-        x5=x5[:,:,:x0.size(2),:x0.size(3)]
-        x5=torch.cat([x0,x5],dim=1)
-        #print('x5:',x5.shape)
-        x6=self.u3(x5)
-        x6=x6[:,:,:x.size(2),:x.size(3)]
+        x5=torch.cat([x3,x5],dim=1)
+        #print('x5cat:',x5.shape)
+
+        x6=self.u2(x5)
         #print('x6:',x6.shape)
-        x7=self.u4(x6)
-        #print('x7:',x7.shape)
-        return x7
+        x6=x6[:,:,:x1.size(2),:x1.size(3)]
+        x6=torch.cat([x1,x6],dim=1)
+        #print('x6cat:',x6.shape)
+
+        x7=self.u3(x6)
+        #print(x7.shape)
+        x7=x7[:,:,:x0.size(2),:x0.size(3)]
+        x7=torch.cat([x0,x7], dim=1)
+        #print('x7cat:',x7.shape)
+        x8=self.u4(x7)
+        x8=x8[:,:,:x.size(2),:x.size(3)]
+        #print('x8:',x8.shape)
+        x9=self.u5(x8)
+        return x9
 
 
 
