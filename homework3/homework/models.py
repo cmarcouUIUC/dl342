@@ -122,7 +122,14 @@ class FCN(torch.nn.Module):
         self.c1  = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.c2 = self.Block(32, 64, norm, residual, stride=2)
         self.c3 = self.Block(64, 128, norm, residual, stride=2)
-        self.c4= self.Block(128, 256, norm, residual, stride=2)
+
+        ##Testing smaller non-strided block to decrease resolution less
+        self.c4=  torch.nn.Sequential(
+          torch.nn.Conv2d(in_channels=128,out_channels=256, kernel_size=3, padding=1),
+          torch.nn.ReLU(),
+          torch.nn.BatchNorm2d(256) if norm == True else torch.nn.Identity()
+        )
+      
         self.u1 = torch.nn.Sequential(
             torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=2,output_padding=1),
             torch.nn.ReLU(),
@@ -157,8 +164,7 @@ class FCN(torch.nn.Module):
           torch.nn.ConvTranspose2d(5,5,kernel_size=1),
           torch.nn.ReLU(),
           torch.nn.Conv2d(5,5,kernel_size=1),
-          torch.nn.ReLU(),
-          torch.nn.Conv2d(5,5,kernel_size=1)
+          torch.nn.ReLU()
         )
 
 
@@ -173,6 +179,8 @@ class FCN(torch.nn.Module):
               if required (use z = z[:, :, :H, :W], where H and W are the height and width of a corresponding strided
               convolution
         """
+
+        ###Convolutions
         x0=self.c0(x)
         #print("x0: ", x0.shape)
         x1=self.c1(x0)
@@ -186,24 +194,29 @@ class FCN(torch.nn.Module):
         #print('x4:',x4.shape)
 
 
-
+        ###First Upconvolution and Skip Connection
         x5=self.u1(x4)
         x5=x5[:,:,:x3.size(2),:x3.size(3)]
         #print('x5:',x5.shape)
         x5=torch.cat([x3,x5],dim=1)
         #print('x5cat:',x5.shape)
 
+        ###Second Upconvolution and Skip Connection
         x6=self.u2(x5)
         #print('x6:',x6.shape)
         x6=x6[:,:,:x1.size(2),:x1.size(3)]
         x6=torch.cat([x1,x6],dim=1)
         #print('x6cat:',x6.shape)
 
+
+        ###Third Upconvolution and Skip Connection
         x7=self.u3(x6)
         #print(x7.shape)
         x7=x7[:,:,:x0.size(2),:x0.size(3)]
         x7=torch.cat([x0,x7], dim=1)
         #print('x7cat:',x7.shape)
+
+        ###Last Upconvolution + 1x1 convolution
         x8=self.u4(x7)
         x8=x8[:,:,:x.size(2),:x.size(3)]
         #print('x8:',x8.shape)
