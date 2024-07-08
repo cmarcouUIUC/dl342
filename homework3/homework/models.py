@@ -121,7 +121,7 @@ class FCN(torch.nn.Module):
         )
         self.c1  = torch.nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.c2 = self.Block(32, 64, norm, residual, stride=2)
-        self.c3 = self.Block(64, 128, norm, residual, stride=2)
+        self.c3 = self.Block(64, 128, norm, residual, stride=1)
 
         ##Testing smaller non-strided block to decrease resolution less
         self.c4=  torch.nn.Sequential(
@@ -131,13 +131,13 @@ class FCN(torch.nn.Module):
         )
       
         self.u1 = torch.nn.Sequential(
-            torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=1,output_padding=0),
             torch.nn.ReLU(),
             torch.nn.BatchNorm2d(128) if norm == True else torch.nn.Identity(),
 
         )
         self.u2 = torch.nn.Sequential(
-            torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=2,output_padding=1),
+            torch.nn.ConvTranspose2d(in_channels=256,out_channels=128,padding=1, kernel_size=3,stride=1,output_padding=0),
             torch.nn.ReLU(),
             torch.nn.BatchNorm2d(128) if norm == True else torch.nn.Identity(),
             torch.nn.ConvTranspose2d(in_channels=128,out_channels=64,padding=1, kernel_size=3,stride=2,output_padding=1),
