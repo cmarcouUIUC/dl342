@@ -27,7 +27,7 @@ def train(args):
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     model = FCN().to(device)
 
-    weights = [1-i for i in DENSE_CLASS_DISTRIBUTION]
+    weights = [1/i for i in DENSE_CLASS_DISTRIBUTION]
     weights = torch.tensor(weights).to(device)
 
     if args.seed is not None:
