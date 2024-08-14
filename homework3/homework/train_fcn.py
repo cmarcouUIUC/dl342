@@ -6,6 +6,7 @@ from .utils import load_dense_data, DENSE_CLASS_DISTRIBUTION, ConfusionMatrix, a
 from . import dense_transforms
 import torch.utils.tensorboard as tb
 import torchvision
+from torchvision.models.segmentation import fcn_resnet50
 
 
 def train(args):
@@ -25,7 +26,10 @@ def train(args):
     """
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
-    model = FCN().to(device)
+    if args.pretrained==True:
+      model = fcn_resnet50(num_classes=5).to(device)
+    if args.pretrained is not True:
+      model = FCN().to(device)
 
     weights = [1.0 for i in DENSE_CLASS_DISTRIBUTION]
     weights = torch.tensor(weights).to(device)
@@ -41,12 +45,12 @@ def train(args):
       dense_transforms.ColorJitter(brightness=1,contrast=.5, saturation=.5, hue=.5),
       dense_transforms.RandomResizedCrop((128,96)),
       dense_transforms.ToTensor(),
-      #dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+      dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     transformsvalid=dense_transforms.Compose([
       dense_transforms.ToTensor(),
-      #dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+      dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
 
     #load data
@@ -180,6 +184,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr_schedule',default=None)
     parser.add_argument('--optim',default='SGD')
     parser.add_argument('--seed',default=None, type=int)
+    parser.add_argument('--pretrained',default=False)
 
     args = parser.parse_args()
     train(args)
