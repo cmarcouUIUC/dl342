@@ -6,7 +6,7 @@ from .utils import load_dense_data, DENSE_CLASS_DISTRIBUTION, ConfusionMatrix, a
 from . import dense_transforms
 import torch.utils.tensorboard as tb
 import torchvision
-from torchvision.models.segmentation import fcn_resnet50
+from torchvision.models.segmentation import FCN_ResNet50_Weights, fcn_resnet50
 
 
 def train(args):
@@ -27,7 +27,7 @@ def train(args):
 
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
     if args.pretrained==True:
-      model = fcn_resnet50(num_classes=5).to(device)
+      model = fcn_resnet50(weights=FCN_ResNet50_Weights, num_classes=5).to(device)
     if args.pretrained is not True:
       model = FCN().to(device)
 
