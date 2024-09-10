@@ -64,7 +64,7 @@ def train(args):
     if args.optim == 'SGD':
       optimizer = torch.optim.SGD(model.parameters(), lr=args.learning_rate, momentum=args.momentum, weight_decay=1e-4)
     elif args.optim == 'ADAM':
-            optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
+      optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
 
 
     scheduler = None
@@ -106,9 +106,7 @@ def train(args):
         optimizer.step()
         global_step+=1
 
-      #scheduler.step()
-      if scheduler is not None: scheduler.step(np.mean(accuracies))
-      #log accuracy
+
 
       #check on valid accuracy
       valid_acc = []
@@ -145,12 +143,6 @@ def train(args):
       if epochs_no_improve==10:
           break
       
-      #prior_val_loss=np.mean(valid_loss)
-
-
-
-
-    #save_model(model)
 
 
 def log(logger, imgs, lbls, logits, global_step):
