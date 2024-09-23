@@ -34,7 +34,7 @@ def train(args):
 
     #Class distribution weights
     classweights = [1.0 for i in DENSE_CLASS_DISTRIBUTION]
-    classweights = torch.tensor(classcweights).to(device)
+    classweights = torch.tensor(classweights).to(device)
 
     #if args.seed is not None:
     #  torch.manual_seed(args.seed)
