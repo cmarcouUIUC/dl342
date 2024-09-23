@@ -11,7 +11,6 @@ from torchvision.models.segmentation import FCN_ResNet50_Weights, fcn_resnet50
 
 def train(args):
     from os import path
-    model = FCN()
     train_logger, valid_logger = None, None
     if args.log_dir is not None:
         train_logger = tb.SummaryWriter(path.join(args.log_dir, 'train'), flush_secs=1)
@@ -24,19 +23,22 @@ def train(args):
     Hint: If you found a good data augmentation parameters for the CNN, use them here too. Use dense_transforms
     Hint: Use the log function below to debug and visualize your model
     """
-
+    ##device
     device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
+
+    #Model setup
     if args.pretrained==True:
       model = fcn_resnet50(weights=FCN_ResNet50_Weights, num_classes=5).to(device)
     if args.pretrained is not True:
       model = FCN().to(device)
 
+    #Class distribution weights
     weights = [1.0 for i in DENSE_CLASS_DISTRIBUTION]
     weights = torch.tensor(weights).to(device)
 
-    if args.seed is not None:
-      torch.manual_seed(args.seed)
-      np.random.seed(args.seed)
+    #if args.seed is not None:
+    #  torch.manual_seed(args.seed)
+    #  np.random.seed(args.seed)
 
     #transforms
     transforms=dense_transforms.Compose([
@@ -66,7 +68,7 @@ def train(args):
     elif args.optim == 'ADAM':
       optimizer = torch.optim.AdamW(model.parameters(), lr=args.learning_rate, weight_decay=1e-4)
 
-
+    #setup scheduler
     scheduler = None
     if args.lr_schedule is not None:
       if args.lr_schedule == 'step':
@@ -75,6 +77,7 @@ def train(args):
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max')
       else: scheduler = None
 
+    #Set global step, best loss for early stopping
     global_step=0
     best_loss = 1000000
     epochs_no_improve=0
@@ -95,8 +98,6 @@ def train(args):
         c.add(preds=o.argmax(1),labels=labels)
 
         #track accuracy, iou, and log loss
-        #accuracies.append(accuracy(o,labels).detach().cpu().numpy())
-        #train_acc.append(accuracy(o, labels).cpu().detach().numpy())
         train_logger.add_scalar('accuracy', c.global_accuracy, global_step)
         train_logger.add_scalar('loss', loss_val, global_step)
         train_logger.add_scalar('IOU', c.iou, global_step)
