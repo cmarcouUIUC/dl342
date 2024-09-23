@@ -33,8 +33,8 @@ def train(args):
       model = FCN().to(device)
 
     #Class distribution weights
-    weights = [1.0 for i in DENSE_CLASS_DISTRIBUTION]
-    weights = torch.tensor(weights).to(device)
+    classweights = [1.0 for i in DENSE_CLASS_DISTRIBUTION]
+    classweights = torch.tensor(classcweights).to(device)
 
     #if args.seed is not None:
     #  torch.manual_seed(args.seed)
@@ -94,7 +94,7 @@ def train(args):
 
         optimizer.zero_grad()
         o = model(inputs)
-        loss_val = loss(o, labels, weights)
+        loss_val = loss(o, labels, classweights)
         c.add(preds=o.argmax(1),labels=labels)
 
         #track accuracy, iou, and log loss
@@ -118,7 +118,7 @@ def train(args):
         inputs, labels = data
         inputs, labels = inputs.to(device).float(), labels.to(device).long()
         valid_o = model(inputs)
-        valid_l = loss(valid_o, labels, weights)
+        valid_l = loss(valid_o, labels, classweights)
         c2.add(preds=valid_o.argmax(1), labels=labels)
         valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy
