@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from torchvision.models.segmentation.deeplabv3 import Weights
 
 from .models import FCN, save_model,  ClassificationLoss
 from .utils import load_dense_data, DENSE_CLASS_DISTRIBUTION, ConfusionMatrix, accuracy
@@ -60,7 +61,7 @@ def train(args):
     valid_data=load_dense_data('dense_data/valid', transform=transformsvalid)
 
     #loss
-    loss = ClassificationLoss()
+    loss = ClassificationLoss(weight=classweights)
 
     #initialize optimizer
     if args.optim == 'SGD':
@@ -95,7 +96,7 @@ def train(args):
 
         optimizer.zero_grad()
         o = model(inputs)
-        loss_val = loss(o, labels, classweights)
+        loss_val = loss(o, labels)
         c.add(preds=o.argmax(1),labels=labels)
 
         #track accuracy, iou, and log loss
@@ -120,7 +121,7 @@ def train(args):
           inputs, labels = data
           inputs, labels = inputs.to(device).float(), labels.to(device).long()
           valid_o = model(inputs)
-          valid_l = loss(valid_o, labels, classweights)
+          valid_l = loss(valid_o, labels)
           c2.add(preds=valid_o.argmax(1), labels=labels)
           valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy
