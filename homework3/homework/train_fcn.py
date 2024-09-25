@@ -35,7 +35,7 @@ def train(args):
       model = FCN().to(device)
 
     #Class distribution weights
-    classweights = [1.0 for i in DENSE_CLASS_DISTRIBUTION]
+    classweights = [1/i for i in DENSE_CLASS_DISTRIBUTION]
     classweights = torch.tensor(classweights).to(device)
 
     #if args.seed is not None:
