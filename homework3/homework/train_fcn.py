@@ -8,6 +8,7 @@ from . import dense_transforms
 import torch.utils.tensorboard as tb
 import torchvision
 from torchvision.models.segmentation import FCN_ResNet50_Weights, fcn_resnet50
+import torch.nn.functional as F
 
 
 def train(args):
@@ -61,7 +62,7 @@ def train(args):
     valid_data=load_dense_data('dense_data/valid', transform=transformsvalid)
 
     #loss
-    loss = ClassificationLoss(weight=classweights)
+    loss = torch.nn.CrossEntropyLoss(weight=classweights)
 
     #initialize optimizer
     if args.optim == 'SGD':
