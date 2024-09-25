@@ -43,9 +43,9 @@ def train(args):
     #transforms
     transforms=dense_transforms.Compose([
       
-      dense_transforms.RandomHorizontalFlip(),
+      #dense_transforms.RandomHorizontalFlip(),
       dense_transforms.ColorJitter(brightness=1,contrast=.5, saturation=.5, hue=.5),
-      dense_transforms.RandomResizedCrop((128,96)),
+      #dense_transforms.RandomResizedCrop((128,96)),
       dense_transforms.ToTensor(),
       dense_transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
     ])
@@ -80,6 +80,7 @@ def train(args):
     #Set global step, best loss for early stopping
     global_step=0
     best_loss = 1000000
+    best_IOU = 0.0
     epochs_no_improve=0
 
     for epoch in range(args.n_epochs):
@@ -114,13 +115,14 @@ def train(args):
       valid_loss = []
       c2=ConfusionMatrix()
       for i,data in enumerate(valid_data):
-        model.eval()
-        inputs, labels = data
-        inputs, labels = inputs.to(device).float(), labels.to(device).long()
-        valid_o = model(inputs)
-        valid_l = loss(valid_o, labels, classweights)
-        c2.add(preds=valid_o.argmax(1), labels=labels)
-        valid_loss.append(valid_l.cpu().detach().numpy())
+        with torch.no_grad():
+          model.eval()
+          inputs, labels = data
+          inputs, labels = inputs.to(device).float(), labels.to(device).long()
+          valid_o = model(inputs)
+          valid_l = loss(valid_o, labels, classweights)
+          c2.add(preds=valid_o.argmax(1), labels=labels)
+          valid_loss.append(valid_l.cpu().detach().numpy())
       #log validation accuracy
       valid_logger.add_scalar('accuracy', c2.global_accuracy, global_step)
       valid_logger.add_scalar('loss', np.mean(valid_loss), global_step)
@@ -130,15 +132,15 @@ def train(args):
       if epoch <= args.early_stop:
         if epoch == 1:
           save_model(model)
-        elif np.mean(valid_loss) <= best_loss:
-          best_loss=np.mean(valid_loss)
+        elif c2.iou >= best_IOU:
+          best_loss=c2.iou
           save_model(model)
       else:
-        if np.mean(valid_loss) >= best_loss:
+        if c2.iou <= best_IOU:
             epochs_no_improve+=1
         else:
             epochs_no_improve=0
-            best_loss=np.mean(valid_loss)
+            best_loss=c2.best_IOU
             save_model(model)
 
       if epochs_no_improve==10:
